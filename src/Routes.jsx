@@ -10,6 +10,9 @@ import SearchResults from "pages/search-results";
 import BookmarksLibrary from "pages/bookmarks-library";
 import UserSettings from "pages/user-settings";
 import NotFound from "pages/NotFound";
+import SignIn from "pages/user-settings/components/SignIn";
+import SignUp from "pages/user-settings/components/SignUp";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const Routes = () => {
   return (
@@ -25,6 +28,8 @@ const Routes = () => {
         <Route path="/search-results" element={<SearchResults />} />
         <Route path="/bookmarks-library" element={<BookmarksLibrary />} />
         <Route path="/user-settings" element={<UserSettings />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="*" element={<NotFound />} />
       </RouterRoutes>
       </ErrorBoundary>
