@@ -18,6 +18,7 @@ export default function SignUp() {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       setSuccess(true);
+      navigate("/");
     } catch (err) {
       setError(err.message);
     }
