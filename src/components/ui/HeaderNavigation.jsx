@@ -3,6 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import Icon from '../AppIcon';
 import Button from './Button';
 import SearchInterface from './SearchInterface';
+import { useAuth } from "../../contexts/AuthContext";
+
+const DEFAULT_USER_IMG = "/assets/images/default-user.png";
 
 const HeaderNavigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -10,6 +13,7 @@ const HeaderNavigation = () => {
   const location = useLocation();
   const dropdownRef = useRef(null);
   const mobileMenuRef = useRef(null);
+  const { user, logout } = useAuth();
 
   const navigationItems = [
     { label: 'Home', path: '/news-homepage', icon: 'Home' },
@@ -193,13 +197,27 @@ const HeaderNavigation = () => {
               <SearchInterface />
             </div>
 
-            {/* Login/Sign Up Buttons */}
-            <Link to="/login" className="btn btn-outline text-sm font-medium px-4 py-2 rounded-md border border-red-600 text-red-600 hover:bg-red-50 transition-colors duration-200 hidden lg:inline-block">
-              Login
-            </Link>
-            <Link to="/signup" className="btn btn-primary text-sm font-medium px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors duration-200 hidden lg:inline-block">
-              Sign Up
-            </Link>
+            {/* User Info or Login/Sign Up Buttons */}
+            {user ? (
+              <div className="flex items-center space-x-2">
+                {user.photoURL ? (
+                  <img src={user.photoURL} alt="Profile" className="w-8 h-8 rounded-full" />
+                ) : (
+                  <img src={DEFAULT_USER_IMG} alt="Default Profile" className="w-8 h-8 rounded-full bg-gray-200" />
+                )}
+                <span>{user.displayName || user.email}</span>
+                <Button variant="outline" onClick={logout} className="ml-2">Logout</Button>
+              </div>
+            ) : (
+              <>
+                <Link to="/signin" className="btn btn-outline text-sm font-medium px-4 py-2 rounded-md border border-red-600 text-red-600 hover:bg-red-50 transition-colors duration-200 hidden lg:inline-block">
+                  Login
+                </Link>
+                <Link to="/signup" className="btn btn-primary text-sm font-medium px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors duration-200 hidden lg:inline-block">
+                  Sign Up
+                </Link>
+              </>
+            )}
 
             {/* Mobile Menu Button */}
             <Button
@@ -292,15 +310,27 @@ const HeaderNavigation = () => {
                 ))}
               </nav>
 
-              {/* Mobile Login/Sign Up Buttons */}
-              <div className="flex flex-col space-y-3 pt-4">
-                <Link to="/login" className="btn btn-outline text-base font-medium px-4 py-2 rounded-md border border-red-600 text-red-600 hover:bg-red-50 transition-colors duration-200 w-full text-center">
-                  Login
-                </Link>
-                <Link to="/signup" className="btn btn-primary text-base font-medium px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors duration-200 w-full text-center">
-                  Sign Up
-                </Link>
-              </div>
+              {/* Mobile User Info or Login/Sign Up Buttons */}
+              {user ? (
+                <div className="flex flex-col items-center space-y-2 pt-4">
+                  {user.photoURL ? (
+                    <img src={user.photoURL} alt="Profile" className="w-12 h-12 rounded-full" />
+                  ) : (
+                    <img src={DEFAULT_USER_IMG} alt="Default Profile" className="w-12 h-12 rounded-full bg-gray-200" />
+                  )}
+                  <span>{user.displayName || user.email}</span>
+                  <Button variant="outline" onClick={logout} className="w-full mt-2">Logout</Button>
+                </div>
+              ) : (
+                <div className="flex flex-col space-y-3 pt-4">
+                  <Link to="/signin" className="btn btn-outline text-base font-medium px-4 py-2 rounded-md border border-red-600 text-red-600 hover:bg-red-50 transition-colors duration-200 w-full text-center">
+                    Login
+                  </Link>
+                  <Link to="/signup" className="btn btn-primary text-base font-medium px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors duration-200 w-full text-center">
+                    Sign Up
+                  </Link>
+                </div>
+              )}
 
               {/* Status Indicator */}
               <div className="flex items-center justify-center pt-4 border-t border-border">
