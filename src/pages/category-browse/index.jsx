@@ -24,128 +24,26 @@ const CategoryBrowse = () => {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
 
-  // Mock data
-  const mockFeaturedArticle = {
-    id: 'featured-1',
-    title: `Breaking: Major ${category.charAt(0).toUpperCase() + category.slice(1)} Development Reshapes Industry Standards`,
-    summary: `In a groundbreaking announcement that has sent shockwaves through the ${category} sector, industry leaders have unveiled revolutionary changes that promise to transform how we approach modern challenges. This comprehensive analysis explores the far-reaching implications and what it means for the future.`,
-    image: `https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop`,
-    author: {
-      name: 'Sarah Johnson',
-      avatar: 'https://randomuser.me/api/portraits/women/32.jpg'
-    },
-    source: 'TechDaily',
-    publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    readTime: 8,
-    category: category.charAt(0).toUpperCase() + category.slice(1)
-  };
-
-  const mockArticles = [
-    {
-      id: 'article-1',
-      title: `${category.charAt(0).toUpperCase() + category.slice(1)} Innovation Drives Market Growth`,
-      summary: `Recent developments in ${category} have led to unprecedented market expansion, with experts predicting continued growth throughout the year.`,
-      image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?w=400&h=250&fit=crop',
-      author: {
-        name: 'Michael Chen',
-        avatar: 'https://randomuser.me/api/portraits/men/45.jpg'
-      },
-      source: 'Industry Weekly',
-      publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
-      readTime: 5,
-      category: category.charAt(0).toUpperCase() + category.slice(1),
-      isBookmarked: false
-    },
-    {
-      id: 'article-2',
-      title: `Global ${category.charAt(0).toUpperCase() + category.slice(1)} Summit Announces New Initiatives`,
-      summary: `World leaders gather to discuss the future of ${category}, announcing collaborative efforts to address emerging challenges and opportunities.`,
-      image: 'https://images.pixabay.com/photo/2016/11/29/06/15/plans-1867745_1280.jpg?w=400&h=250&fit=crop',
-      author: {
-        name: 'Emma Rodriguez',
-        avatar: 'https://randomuser.me/api/portraits/women/28.jpg'
-      },
-      source: 'Global News',
-      publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000),
-      readTime: 7,
-      category: category.charAt(0).toUpperCase() + category.slice(1),
-      isBookmarked: true
-    },
-    {
-      id: 'article-3',
-      title: `Expert Analysis: ${category.charAt(0).toUpperCase() + category.slice(1)} Trends for 2024`,
-      summary: `Leading analysts share their insights on the most significant trends shaping the ${category} landscape in the coming year.`,
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop',
-      author: {
-        name: 'David Park',
-        avatar: 'https://randomuser.me/api/portraits/men/33.jpg'
-      },
-      source: 'Analytics Today',
-      publishedAt: new Date(Date.now() - 8 * 60 * 60 * 1000),
-      readTime: 6,
-      category: category.charAt(0).toUpperCase() + category.slice(1),
-      isBookmarked: false
-    },
-    {
-      id: 'article-4',
-      title: `Breakthrough Research in ${category.charAt(0).toUpperCase() + category.slice(1)} Field`,
-      summary: `Scientists announce significant breakthrough that could revolutionize our understanding of ${category} applications.`,
-      image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?w=400&h=250&fit=crop',
-      author: {
-        name: 'Dr. Lisa Wang',
-        avatar: 'https://randomuser.me/api/portraits/women/41.jpg'
-      },
-      source: 'Research Journal',
-      publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000),
-      readTime: 9,
-      category: category.charAt(0).toUpperCase() + category.slice(1),
-      isBookmarked: false
-    },
-    {
-      id: 'article-5',
-      title: `${category.charAt(0).toUpperCase() + category.slice(1)} Startup Secures Major Funding`,
-      summary: `Emerging company in the ${category} space raises significant investment to accelerate product development and market expansion.`,
-      image: 'https://images.pixabay.com/photo/2016/11/27/21/42/stock-1863880_1280.jpg?w=400&h=250&fit=crop',
-      author: {
-        name: 'Alex Thompson',
-        avatar: 'https://randomuser.me/api/portraits/men/29.jpg'
-      },
-      source: 'Startup News',
-      publishedAt: new Date(Date.now() - 16 * 60 * 60 * 1000),
-      readTime: 4,
-      category: category.charAt(0).toUpperCase() + category.slice(1),
-      isBookmarked: true
-    },
-    {
-      id: 'article-6',
-      title: `Policy Changes Impact ${category.charAt(0).toUpperCase() + category.slice(1)} Sector`,
-      summary: `New regulations announced by government officials are expected to significantly influence ${category} industry practices.`,
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=250&fit=crop',
-      author: {
-        name: 'Jennifer Lee',
-        avatar: 'https://randomuser.me/api/portraits/women/35.jpg'
-      },
-      source: 'Policy Watch',
-      publishedAt: new Date(Date.now() - 20 * 60 * 60 * 1000),
-      readTime: 6,
-      category: category.charAt(0).toUpperCase() + category.slice(1),
-      isBookmarked: false
-    }
-  ];
-
   useEffect(() => {
     loadInitialData();
   }, [category, activeSubcategory, sortBy]);
 
   const loadInitialData = async () => {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setFeaturedArticle(mockFeaturedArticle);
-    setArticles(mockArticles);
-    setPage(1);
-    setHasMore(true);
+    try {
+      const response = await fetch(
+        `http://localhost:4000/api/articles?category=${encodeURIComponent(category)}&page=1&limit=10`
+      );
+      const data = await response.json();
+      setArticles(data.articles || []);
+      setFeaturedArticle(data.articles && data.articles.length > 0 ? data.articles[0] : null);
+      setPage(1);
+      setHasMore(data.totalPages > 1);
+    } catch (error) {
+      setArticles([]);
+      setFeaturedArticle(null);
+      setHasMore(false);
+    }
     setIsLoading(false);
   };
 
@@ -289,3 +187,5 @@ const CategoryBrowse = () => {
 };
 
 export default CategoryBrowse;
+
+

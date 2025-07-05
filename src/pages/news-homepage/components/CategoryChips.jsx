@@ -9,16 +9,17 @@ const CategoryChips = () => {
   const location = useLocation();
 
   const categories = [
-    { name: 'All', path: '/news-homepage', icon: 'Home' },
-    { name: 'National', path: '/category-browse?category=national', icon: 'Globe' },
-    { name: 'International', path: '/category-browse?category=international', icon: 'Globe' },
-    { name: 'Finance', path: '/category-browse?category=finance', icon: 'TrendingUp' },
-    { name: 'Aviation', path: '/category-browse?category=aviation', icon: 'Smartphone' },
-    { name: 'Technology', path: '/category-browse?category=technology', icon: 'Smartphone' },
-    { name: 'Mumbai', path: '/category-browse?category=mumbai', icon: 'Globe' },
-    { name: 'Fact Check', path: '/category-browse?category=fact-check', icon: 'Atom' },
-    { name: 'Videos', path: '/category-browse?category=videos', icon: 'Film' },
-    { name: 'Contact', path: '/category-browse?category=contact', icon: 'Users' },
+    { name: 'Breaking News', path: '/category-browse?category=Breaking News', icon: 'Home' },
+    { name: 'Mumbai', path: '/category-browse?category=Mumbai', icon: 'Globe' },
+    { name: 'National News', path: '/category-browse?category=National News', icon: 'Globe' },
+    { name: 'International News', path: '/category-browse?category=International News', icon: 'Globe' },
+    { name: 'Finance', path: '/category-browse?category=Finance', icon: 'TrendingUp' },
+    { name: 'Aviation', path: '/category-browse?category=Aviation', icon: 'Smartphone' },
+    { name: 'Technology', path: '/category-browse?category=Technology', icon: 'Smartphone' },
+    { name: 'Fact Check', path: '/category-browse?category=Fact Check', icon: 'Atom' },
+    { name: 'Sports', path: '/category-browse?category=Sports', icon: 'Film' },
+    { name: 'Entertainment', path: '/category-browse?category=Entertainment', icon: 'Users' },
+    { name: 'Opinion', path: '/category-browse?category=Opinion', icon: 'Users' },
   ];
 
   const checkScrollButtons = () => {

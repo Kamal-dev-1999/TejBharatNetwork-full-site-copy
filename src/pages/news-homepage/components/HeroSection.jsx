@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Image from '../../../components/AppImage';
 import Icon from '../../../components/AppIcon';
@@ -16,6 +16,25 @@ const HeroSection = ({ featuredArticle }) => {
       </div>
     );
   }
+
+  // Add this ref
+  const politicsRef = useRef(null);
+
+  // Add this effect for auto-scroll
+  useEffect(() => {
+    const container = politicsRef.current;
+    if (!container) return;
+    let scrollStep = 1;
+    let delay = 30; // ms between steps
+
+    function autoScroll() {
+      if (container.scrollTop + container.clientHeight < container.scrollHeight) {
+        container.scrollTop += scrollStep;
+        setTimeout(autoScroll, delay);
+      }
+    }
+    autoScroll();
+  }, []);
 
   return (
     <div className="
@@ -67,7 +86,10 @@ const HeroSection = ({ featuredArticle }) => {
       </div>
 
       {/* Politics News Only (right side) */}
-      <div className="hidden md:flex w-1/3 h-full bg-background/80 items-start justify-center p-4 overflow-y-auto border-l border-gray-200">
+      <div
+        ref={politicsRef}
+        className="hidden md:flex w-1/3 h-full bg-background/80 items-start justify-center p-4 overflow-y-auto border-l border-gray-200 no-scrollbar"
+      >
         <div className="w-full flex flex-col gap-4 max-w-xs">
           {/* Politics Card 1 */}
           <div className="bg-white rounded-lg p-4 flex flex-col items-start transition-transform duration-200 hover:scale-105 border border-gray-200">

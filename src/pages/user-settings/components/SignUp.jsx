@@ -19,7 +19,7 @@ export default function SignUp() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: username });
       setSuccess(true);
-      navigate("/"); // Redirect to homepage
+      navigate("/user-settings", { state: { user: auth.currentUser } });
     } catch (err) {
       setError(err.message);
     }
@@ -74,4 +74,4 @@ export default function SignUp() {
       </div>
     </div>
   );
-} 
+}

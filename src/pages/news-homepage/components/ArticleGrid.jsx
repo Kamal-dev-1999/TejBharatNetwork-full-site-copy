@@ -1,12 +1,12 @@
 import React from 'react';
-import ArticleCard from './ArticleCard';
+import ArticleCard from '../../category-browse/components/ArticleCard';
 import Icon from '../../../components/AppIcon';
 
 
 const ArticleGrid = ({ articles, isLoading, onBookmarkToggle }) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
         {Array.from({ length: 8 }).map((_, index) => (
           <div key={index} className="news-card">
             <div className="w-full h-48 bg-neutral-200 rounded-t-lg animate-pulse"></div>
@@ -46,12 +46,14 @@ const ArticleGrid = ({ articles, isLoading, onBookmarkToggle }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
       {articles.map((article) => (
         <ArticleCard
           key={article.id}
           article={article}
-          onBookmarkToggle={onBookmarkToggle}
+          onBookmark={() => {}}
+          onShare={() => {}}
+          className="h-full flex flex-col"
         />
       ))}
     </div>

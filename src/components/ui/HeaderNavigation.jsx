@@ -4,6 +4,7 @@ import Icon from '../AppIcon';
 import Button from './Button';
 import SearchInterface from './SearchInterface';
 import { useAuth } from "../../contexts/AuthContext";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const DEFAULT_USER_IMG = "/assets/images/default-user.png";
 
@@ -25,14 +26,17 @@ const HeaderNavigation = () => {
   ];
 
   const categories = [
-    { label: 'Politics', path: '/category-browse?category=politics', count: 245 },
-    { label: 'Technology', path: '/category-browse?category=technology', count: 189 },
-    { label: 'Business', path: '/category-browse?category=business', count: 156 },
-    { label: 'Sports', path: '/category-browse?category=sports', count: 134 },
-    { label: 'Health', path: '/category-browse?category=health', count: 98 },
-    { label: 'Science', path: '/category-browse?category=science', count: 87 },
-    { label: 'Entertainment', path: '/category-browse?category=entertainment', count: 76 },
-    { label: 'World', path: '/category-browse?category=world', count: 203 },
+    { label: 'Breaking News', path: '/category-browse?category=Breaking News' },
+    { label: 'Mumbai', path: '/category-browse?category=Mumbai' },
+    { label: 'National News', path: '/category-browse?category=National News' },
+    { label: 'International News', path: '/category-browse?category=International News' },
+    { label: 'Finance', path: '/category-browse?category=Finance' },
+    { label: 'Aviation', path: '/category-browse?category=Aviation' },
+    { label: 'Technology', path: '/category-browse?category=Technology' },
+    { label: 'Fact Check', path: '/category-browse?category=Fact Check' },
+    { label: 'Sports', path: '/category-browse?category=Sports' },
+    { label: 'Entertainment', path: '/category-browse?category=Entertainment' },
+    { label: 'Opinion', path: '/category-browse?category=Opinion' },
   ];
 
   const isActiveRoute = (path) => {

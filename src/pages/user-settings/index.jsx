@@ -4,6 +4,8 @@ import ContextualBreadcrumbs from '../../components/ui/ContextualBreadcrumbs';
 import LocalizationSettings from './components/LocalizationSettings';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
+import { useLocation } from "react-router-dom";
+import { useAuth } from '../../contexts/AuthContext';
 
 const UserSettings = () => {
   const [settings, setSettings] = useState({
@@ -59,6 +61,23 @@ const UserSettings = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSaved, setLastSaved] = useState(new Date());
   const [isAutoSaving, setIsAutoSaving] = useState(false);
+
+  const location = useLocation();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      setSettings(prev => ({
+        ...prev,
+        account: {
+          ...prev.account,
+          name: user.displayName || '',
+          email: user.email || '',
+          // Add more fields as needed
+        }
+      }));
+    }
+  }, [user]);
 
   const handleSettingsChange = (section, newSettings) => {
     setSettings(prev => ({

@@ -6,14 +6,19 @@ function Image({
   className = "",
   ...props
 }) {
+  // Trim the src to avoid whitespace issues
+  const safeSrc = (src || '').trim();
 
   return (
     <img
-      src={src}
+      src={safeSrc}
       alt={alt}
       className={className}
       onError={(e) => {
-        e.target.src = "/assets/images/no_image.png"
+        if (e.target.src !== '/assets/images/no_image.png') {
+          e.target.onerror = null;
+          e.target.src = '/assets/images/no_image.png';
+        }
       }}
       {...props}
     />

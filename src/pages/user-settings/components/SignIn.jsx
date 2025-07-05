@@ -30,7 +30,7 @@ export default function SignIn() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       setSuccess(true);
-      navigate("/");
+      navigate("/user-settings", { state: { user: auth.currentUser } });
     } catch (err) {
       setError(err.message);
     }
@@ -103,4 +103,4 @@ export default function SignIn() {
       </div>
     </div>
   );
-} 
+}
