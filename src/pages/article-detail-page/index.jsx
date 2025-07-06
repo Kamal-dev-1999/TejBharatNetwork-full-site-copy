@@ -65,8 +65,8 @@ const generateFallbackLogo = (sourceName) => {
 // Function to get source logo with fallback
 const getSourceLogo = (sourceName) => {
   if (!sourceName) {
-    console.log('No source name provided, using default logo');
-    return 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=50&h=50&fit=crop';
+    // Default fallback SVG
+    return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><rect width="50" height="50" fill="%23ccc"/><text x="25" y="30" font-size="20" text-anchor="middle" fill="white">?</text></svg>';
   }
   
   console.log(`Looking for logo for source: "${sourceName}"`);
@@ -171,11 +171,11 @@ const ArticleDetailPage = () => {
           author: {
             name: data.article.source || 'Unknown',
             role: 'Reporter',
-            avatar: getSourceLogo(data.article.source)
+            avatar: getSourceLogo(data.article.source) || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><rect width="50" height="50" fill="%23ccc"/><text x="25" y="30" font-size="20" text-anchor="middle" fill="white">?</text></svg>'
           },
           source: {
             name: data.article.source || 'Unknown',
-            logo: getSourceLogo(data.article.source)
+            logo: getSourceLogo(data.article.source) || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><rect width="50" height="50" fill="%23ccc"/><text x="25" y="30" font-size="20" text-anchor="middle" fill="white">?</text></svg>'
           },
           imageUrl: data.article.image_url || data.article.image || '',
           publishedAt: data.article.published_dt ? new Date(data.article.published_dt).toLocaleString() : '',
@@ -332,6 +332,7 @@ const ArticleDetailPage = () => {
               <ArticleContent
                 content={article.content}
                 readingTime={article.readingTime}
+                articleLink={article.link}
               />
             </div>
 
