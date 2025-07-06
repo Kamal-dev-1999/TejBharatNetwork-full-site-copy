@@ -4,7 +4,7 @@ import Icon from '../../../components/AppIcon';
 
 const CategoryChips = () => {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const scrollContainerRef = useRef(null);
   const location = useLocation();
 
@@ -14,32 +14,22 @@ const CategoryChips = () => {
     { name: 'National News', path: '/category-browse?category=National News', icon: 'Globe' },
     { name: 'International News', path: '/category-browse?category=International News', icon: 'Globe' },
     { name: 'Finance', path: '/category-browse?category=Finance', icon: 'TrendingUp' },
-    { name: 'Aviation', path: '/category-browse?category=Aviation', icon: 'Smartphone' },
-    { name: 'Technology', path: '/category-browse?category=Technology', icon: 'Smartphone' },
-    { name: 'Fact Check', path: '/category-browse?category=Fact Check', icon: 'Atom' },
-    { name: 'Sports', path: '/category-browse?category=Sports', icon: 'Film' },
-    { name: 'Entertainment', path: '/category-browse?category=Entertainment', icon: 'Users' },
-    { name: 'Opinion', path: '/category-browse?category=Opinion', icon: 'Users' },
+    { name: 'Aviation', path: '/category-browse?category=Aviation', icon: 'Airplane' },
+    { name: 'Technology', path: '/category-browse?category=Technology', icon: 'Cpu' },
+    { name: 'Fact Check', path: '/category-browse?category=Fact Check', icon: 'CheckCircle' },
+    { name: 'Sports', path: '/category-browse?category=Sports', icon: 'Activity' },
+    { name: 'Entertainment', path: '/category-browse?category=Entertainment', icon: 'Film' },
+    { name: 'Opinion', path: '/category-browse?category=Opinion', icon: 'MessageSquare' },
   ];
 
   const checkScrollButtons = () => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
-    }
+    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
   };
 
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
-    }
+  const scroll = (direction) => {
+    scrollContainerRef.current?.scrollBy({ left: direction * 240, behavior: 'smooth' });
   };
 
   const isActiveCategory = (path) => {
@@ -52,35 +42,37 @@ const CategoryChips = () => {
   useEffect(() => {
     checkScrollButtons();
     const container = scrollContainerRef.current;
-    if (container) {
-      container.addEventListener('scroll', checkScrollButtons);
-      window.addEventListener('resize', checkScrollButtons);
-      return () => {
-        container.removeEventListener('scroll', checkScrollButtons);
-        window.removeEventListener('resize', checkScrollButtons);
-      };
-    }
+    container?.addEventListener('scroll', checkScrollButtons);
+    window.addEventListener('resize', checkScrollButtons);
+    return () => {
+      container?.removeEventListener('scroll', checkScrollButtons);
+      window.removeEventListener('resize', checkScrollButtons);
+    };
   }, []);
 
   return (
-    <div className="relative mb-8">
-      <div className="flex items-center">
-        {/* Left Scroll Button */}
+    <>
+      {/* Hide scrollbar for all browsers */}
+      <style>{`.category-scroll::-webkit-scrollbar { display: none; }
+.category-scroll { scrollbar-width: none; -ms-overflow-style: none; }`}</style>
+
+      <div className="relative mb-10 mt-8">
+        {/* Left Scroll */}
         <button
-          onClick={scrollLeft}
-          className={`hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-background border border-border mr-2 transition-opacity duration-200 ${
-            canScrollLeft ? 'opacity-100 hover:bg-surface' : 'opacity-0 pointer-events-none'
+          onClick={() => scroll(-1)}
+          disabled={!canScrollLeft}
+          className={`absolute left-2 top-1/2 transform -translate-y-1/2 z-10 p-3 rounded-full bg-white transition-opacity duration-300 ${
+            canScrollLeft ? 'opacity-100 hover:shadow-lg hover:bg-gray-100' : 'opacity-0 pointer-events-none'
           }`}
-          aria-label="Scroll categories left"
+          aria-label="Scroll left"
         >
-          <Icon name="ChevronLeft" size={16} className="text-text-secondary" />
+          <Icon name="ChevronLeft" size={24} className="text-gray-600" />
         </button>
 
-        {/* Categories Container - Fixed for mobile */}
+        {/* Chips Container */}
         <div
           ref={scrollContainerRef}
-          className="flex space-x-2 sm:space-x-3 overflow-x-auto scrollbar-hide scroll-smooth flex-1 py-1"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="category-scroll flex space-x-6 overflow-x-auto scroll-smooth py-4 px-10 bg-gray-50 rounded-xl"
         >
           {categories.map((category) => {
             const isActive = isActiveCategory(category.path);
@@ -88,35 +80,38 @@ const CategoryChips = () => {
               <Link
                 key={category.name}
                 to={category.path}
-                className={`group flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 touch-target flex-shrink-0 
-                  ${isActive
-                    ? 'bg-red-700 text-white border border-black'
-                    : 'bg-white text-red-700 border border-black hover:bg-red-50 hover:text-red-800'}
+                className={`flex items-center space-x-3 px-6 py-3 rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0 font-semibold text-lg
+                  ${
+                    isActive
+                      ? 'bg-red-600 text-white ring-2 ring-red-500'
+                      : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-600 hover:shadow-lg'
+                  }
                 `}
               >
-                <Icon 
-                  name={category.icon} 
-                  size={14} 
-                  className={isActive ? 'text-white' : 'text-red-700 group-hover:text-red-800'} 
+                <Icon
+                  name={category.icon}
+                  size={24}
+                  className={isActive ? 'text-white' : 'text-red-600 group-hover:text-red-600'}
                 />
-                <span className="text-xs sm:text-sm">{category.name}</span>
+                <span>{category.name}</span>
               </Link>
             );
           })}
         </div>
 
-        {/* Right Scroll Button */}
+        {/* Right Scroll */}
         <button
-          onClick={scrollRight}
-          className={`hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-background border border-border ml-2 transition-opacity duration-200 ${
-            canScrollRight ? 'opacity-100 hover:bg-surface' : 'opacity-0 pointer-events-none'
+          onClick={() => scroll(1)}
+          disabled={!canScrollRight}
+          className={`absolute right-2 top-1/2 transform -translate-y-1/2 z-10 p-3 rounded-full bg-white transition-opacity duration-300 ${
+            canScrollRight ? 'opacity-100 hover:shadow-lg hover:bg-gray-100' : 'opacity-0 pointer-events-none'
           }`}
-          aria-label="Scroll categories right"
+          aria-label="Scroll right"
         >
-          <Icon name="ChevronRight" size={16} className="text-text-secondary" />
+          <Icon name="ChevronRight" size={24} className="text-gray-600" />
         </button>
       </div>
-    </div>
+    </>
   );
 };
 
