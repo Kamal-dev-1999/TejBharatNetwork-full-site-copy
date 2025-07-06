@@ -10,11 +10,16 @@ import LoadMoreButton from './components/LoadMoreButton';
 import PullToRefresh from './components/PullToRefresh';
 import Icon from '../../components/AppIcon';
 
+const CATEGORIES = [
+  "Breaking News", "Mumbai", "National News", "International News",
+  "Finance", "Aviation", "Technology", "Sports", "Entertainment", "Opinion"
+];
+
 const CategoryBrowse = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  const category = searchParams.get('category') || 'technology';
+  const category = searchParams.get('category');
   
   const [activeSubcategory, setActiveSubcategory] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
@@ -23,56 +28,88 @@ const CategoryBrowse = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [groupedArticles, setGroupedArticles] = useState({});
 
-  useEffect(() => {
-    loadInitialData();
-  }, [category, activeSubcategory, sortBy]);
+  const showAllCategories = !searchParams.get('category');
 
-  const loadInitialData = async () => {
+  // Fetch articles (all or by category)
+  const fetchArticles = async (reset = false, nextPage = 1) => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `http://localhost:4000/api/articles?category=${encodeURIComponent(category)}&page=1&limit=10`
-      );
+      let url;
+      if (category) {
+        url = `http://localhost:4000/api/articles/category/${encodeURIComponent(category)}?page=${nextPage}&limit=10`;
+      } else {
+        url = `http://localhost:4000/api/articles/latest?page=${nextPage}&limit=10`;
+      }
+      const response = await fetch(url);
       const data = await response.json();
-      setArticles(data.articles || []);
-      setFeaturedArticle(data.articles && data.articles.length > 0 ? data.articles[0] : null);
-      setPage(1);
-      setHasMore(data.totalPages > 1);
+      const mapped = (data.articles || []).map((a, idx) => ({
+        id: a._id || idx,
+        title: a.title || '',
+        summary: a.summary || '',
+        excerpt: a.summary || '',
+        image: (a.image_url || a.image || '').trim(),
+        source: a.source || '',
+        category: a.category || '',
+        publishedAt: a.published_dt
+          ? (typeof a.published_dt === 'string'
+              ? new Date(a.published_dt).toLocaleString()
+              : new Date(
+                  a.published_dt.$date
+                    ? typeof a.published_dt.$date === 'string'
+                      ? parseInt(a.published_dt.$date)
+                      : a.published_dt.$date.$numberLong
+                    : a.published_dt
+                ).toLocaleString())
+          : '',
+        readTime: a.full_text
+          ? Math.max(1, Math.round((a.full_text || '').split(' ').length / 200)) + ' min read'
+          : '1 min read',
+        isBookmarked: false,
+        link: a.link || '',
+        author: {
+          avatar: 'https://randomuser.me/api/portraits/lego/1.jpg',
+          name: a.source || 'Unknown'
+        }
+      }));
+      setArticles(reset ? mapped : prev => [...prev, ...mapped]);
+      setPage(data.page || nextPage);
+      setTotalPages(data.totalPages || 1);
+      setHasMore((data.page || nextPage) < (data.totalPages || 1));
     } catch (error) {
       setArticles([]);
-      setFeaturedArticle(null);
       setHasMore(false);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchArticles(true, 1);
+    fetchGroupedArticles();
+  }, [category, activeSubcategory, sortBy]);
+
+  const fetchGroupedArticles = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://localhost:4000/api/articles/grouped?limit=4');
+      const data = await response.json();
+      setGroupedArticles(data);
+    } catch (error) {
+      setGroupedArticles({});
     }
     setIsLoading(false);
   };
 
   const handleRefresh = async () => {
-    await loadInitialData();
+    await fetchArticles(true, 1);
   };
 
-  const handleLoadMore = async () => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // Mock additional articles
-    const additionalArticles = mockArticles.map((article, index) => ({
-      ...article,
-      id: `article-${page * 6 + index + 1}`,
-      title: `${article.title} - Page ${page + 1}`,
-      publishedAt: new Date(Date.now() - (24 + page * 6 + index) * 60 * 60 * 1000)
-    }));
-    
-    setArticles(prev => [...prev, ...additionalArticles]);
-    setPage(prev => prev + 1);
-    
-    // Simulate end of content after 3 pages
-    if (page >= 3) {
-      setHasMore(false);
+  const handleLoadMore = () => {
+    if (hasMore && !isLoading) {
+      fetchArticles(false, page + 1);
     }
-    
-    setIsLoading(false);
   };
 
   const handleBookmark = (articleId) => {
@@ -108,7 +145,20 @@ const CategoryBrowse = () => {
   };
 
   const getCategoryDisplayName = () => {
-    return category.charAt(0).toUpperCase() + category.slice(1);
+    return category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Technology';
+  };
+
+  const getTimeAgo = (date) => {
+    if (!date) return '';
+    const published = new Date(date);
+    if (isNaN(published.getTime())) return '';
+    const now = new Date();
+    const diffInHours = Math.floor((now - published) / (1000 * 60 * 60));
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+    return published.toLocaleDateString();
   };
 
   return (
@@ -121,63 +171,109 @@ const CategoryBrowse = () => {
             {/* Breadcrumbs */}
             <ContextualBreadcrumbs />
 
-            {/* Category Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center">
-                  <Icon name="Grid3X3" size={24} color="white" />
+            {showAllCategories ? (
+              // Show grouped articles for all categories
+              CATEGORIES.filter(category => (groupedArticles[category] && groupedArticles[category].length > 0)).map(category => (
+                <div key={category}>
+                  <h2 className="text-2xl font-bold my-4">{category}</h2>
+                  <ArticleGrid
+                    articles={(groupedArticles[category] || []).map((a, idx) => ({
+                      id: a._id || idx,
+                      title: a.title || '',
+                      summary: a.summary || '',
+                      excerpt: a.summary || '',
+                      image: (a.image_url || a.image || '').trim(),
+                      source: a.source || '',
+                      category: a.category || '',
+                      publishedAt: a.published_dt
+                        ? (typeof a.published_dt === 'string'
+                            ? new Date(a.published_dt).toLocaleString()
+                            : new Date(
+                                a.published_dt.$date
+                                  ? typeof a.published_dt.$date === 'string'
+                                    ? parseInt(a.published_dt.$date)
+                                    : a.published_dt.$date.$numberLong
+                                  : a.published_dt
+                              ).toLocaleString())
+                        : '',
+                      readTime: a.full_text
+                        ? Math.max(1, Math.round((a.full_text || '').split(' ').length / 200)) + ' min read'
+                        : '1 min read',
+                      isBookmarked: false,
+                      link: a.link || '',
+                      author: {
+                        avatar: 'https://randomuser.me/api/portraits/lego/1.jpg',
+                        name: a.source || 'Unknown'
+                      }
+                    }))}
+                    isLoading={isLoading}
+                    onBookmark={() => {}}
+                    onShare={() => {}}
+                  />
                 </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-primary">
-                    {getCategoryDisplayName()}
-                  </h1>
-                  <p className="text-text-secondary">
-                    Latest news and updates in {category}
-                  </p>
+              ))
+            ) : (
+              // Show single category view (original logic)
+              <>
+                {/* Category Header */}
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center">
+                      <Icon name="Grid3X3" size={24} color="white" />
+                    </div>
+                    <div>
+                      <h1 className="text-3xl font-bold text-primary">
+                        {getCategoryDisplayName()}
+                      </h1>
+                      <p className="text-text-secondary">
+                        Latest news and updates in {category}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Sort Dropdown */}
+                  <div className="hidden sm:block">
+                    <SortDropdown sortBy={sortBy} onSortChange={handleSortChange} />
+                  </div>
                 </div>
-              </div>
 
-              {/* Sort Dropdown */}
-              <div className="hidden sm:block">
-                <SortDropdown sortBy={sortBy} onSortChange={handleSortChange} />
-              </div>
-            </div>
+                {/* Featured Article Banner */}
+                {featuredArticle && !isLoading && (
+                  <CategoryBanner 
+                    featuredArticle={featuredArticle} 
+                    category={getCategoryDisplayName()} 
+                  />
+                )}
 
-            {/* Featured Article Banner */}
-            {featuredArticle && !isLoading && (
-              <CategoryBanner 
-                featuredArticle={featuredArticle} 
-                category={getCategoryDisplayName()} 
-              />
-            )}
+                {/* Subcategory Tabs */}
+                <SubcategoryTabs
+                  category={category}
+                  activeSubcategory={activeSubcategory}
+                  onSubcategoryChange={handleSubcategoryChange}
+                />
 
-            {/* Subcategory Tabs */}
-            <SubcategoryTabs
-              category={category}
-              activeSubcategory={activeSubcategory}
-              onSubcategoryChange={handleSubcategoryChange}
-            />
+                {/* Mobile Sort */}
+                <div className="sm:hidden mb-6">
+                  <SortDropdown sortBy={sortBy} onSortChange={handleSortChange} />
+                </div>
 
-            {/* Mobile Sort */}
-            <div className="sm:hidden mb-6">
-              <SortDropdown sortBy={sortBy} onSortChange={handleSortChange} />
-            </div>
+                {/* Articles Grid */}
+                <ArticleGrid
+                  articles={articles}
+                  isLoading={isLoading}
+                  onBookmark={handleBookmark}
+                  onShare={handleShare}
+                />
 
-            {/* Articles Grid */}
-            <ArticleGrid
-              articles={articles}
-              isLoading={isLoading}
-              onBookmark={handleBookmark}
-              onShare={handleShare}
-            />
-
-            {/* Load More */}
-            {!isLoading && articles.length > 0 && (
-              <LoadMoreButton
-                onLoadMore={handleLoadMore}
-                isLoading={isLoading}
-                hasMore={hasMore}
-              />
+                {/* Load More */}
+                {!isLoading && hasMore && (
+                  <LoadMoreButton
+                    onLoadMore={handleLoadMore}
+                    isLoading={isLoading}
+                    hasMore={hasMore}
+                  />
+                )}
+              </>
             )}
           </div>
         </main>
