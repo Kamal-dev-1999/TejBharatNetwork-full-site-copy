@@ -341,6 +341,23 @@ app.get('/api/articles/:id', async (req, res) => {
   }
 });
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Tej Bharat Network API Server', 
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      test: '/api/test',
+      latestArticles: '/api/articles/latest',
+      groupedArticles: '/api/articles/grouped',
+      categoryArticles: '/api/articles/category/:category',
+      singleArticle: '/api/articles/:id',
+      search: '/api/articles/search'
+    }
+  });
+});
+
 // Test endpoint to verify server is running
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!', timestamp: new Date().toISOString() });
