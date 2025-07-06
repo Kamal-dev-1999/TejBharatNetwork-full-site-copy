@@ -1,0 +1,31 @@
+services:
+  # Backend API Service
+  - type: web
+    name: newshub-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false  # You'll need to set this in Render dashboard
+    healthCheckPath: /api/test
+
+  # Frontend React App
+  - type: web
+    name: newshub-frontend
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://newshub-backend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html 

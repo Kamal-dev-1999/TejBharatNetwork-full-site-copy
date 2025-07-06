@@ -10,6 +10,7 @@ import FloatingToolbar from './components/FloatingToolbar';
 import LoadingState from './components/LoadingState';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
+import { API_ENDPOINTS } from '../../config/api';
 
 // Source logo mapping with real logos
 const SOURCE_LOGOS = {
@@ -141,7 +142,7 @@ const ArticleDetailPage = () => {
         console.log('Loading article with ID:', articleId);
         
         // Fetch article from backend API
-        const response = await fetch(`http://localhost:4000/api/articles/${articleId}`);
+        const response = await fetch(API_ENDPOINTS.SINGLE_ARTICLE(articleId));
         
         console.log('Response status:', response.status);
         console.log('Response ok:', response.ok);

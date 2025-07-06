@@ -8,11 +8,7 @@ import FloatingActionButton from './components/FloatingActionButton';
 import RefreshIndicator from './components/RefreshIndicator';
 import LoadMoreButton from './components/LoadMoreButton';
 import Footer from './components/Footer';
-
-const API_URL = 'http://localhost:4000/api/articles2/latest?limit=20';
-
-// Alternative: Fetch from grouped categories to ensure Politics is included
-const GROUPED_API_URL = 'http://localhost:4000/api/latest-by-category';
+import { API_ENDPOINTS } from '../../config/api';
 
 // Source-specific color mapping for better visual distinction
 const SOURCE_COLORS = {
@@ -114,7 +110,7 @@ const NewsHomepage = () => {
     
     try {
       // Use grouped API to ensure all categories including Politics are included
-      const response = await fetch(GROUPED_API_URL);
+      const response = await fetch(API_ENDPOINTS.GROUPED_ARTICLES);
       const groupedData = await response.json();
       
       // Flatten all articles from different categories

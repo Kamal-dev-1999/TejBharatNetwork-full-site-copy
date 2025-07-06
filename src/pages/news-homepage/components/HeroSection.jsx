@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Image from '../../../components/AppImage';
 import Icon from '../../../components/AppIcon';
+import { API_ENDPOINTS } from '../../../config/api';
 
 const HeroSection = ({ featuredArticle }) => {
   const [politicsArticles, setPoliticsArticles] = useState([]);
@@ -15,7 +16,7 @@ const HeroSection = ({ featuredArticle }) => {
     const fetchPoliticsArticles = async () => {
       setIsLoadingPolitics(true);
       try {
-        const response = await fetch('http://localhost:4000/api/articles/latest/National%20News?limit=10');
+        const response = await fetch(API_ENDPOINTS.LATEST_BY_CATEGORY('National News') + '?limit=10');
         const data = await response.json();
         
         if (data.articles && data.articles.length > 0) {

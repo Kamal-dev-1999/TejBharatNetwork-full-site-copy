@@ -9,6 +9,7 @@ import ArticleGrid from './components/ArticleGrid';
 import LoadMoreButton from './components/LoadMoreButton';
 import PullToRefresh from './components/PullToRefresh';
 import Icon from '../../components/AppIcon';
+import { API_ENDPOINTS } from '../../config/api';
 
 const CATEGORIES = [
   "Breaking News", "Politics", "Mumbai", "National News", "International News",
@@ -41,10 +42,10 @@ const CategoryBrowse = () => {
     try {
       let url;
       if (category) {
-        url = `http://localhost:4000/api/articles/category/${encodeURIComponent(category)}?page=${nextPage}&limit=10`;
+        url = `${API_ENDPOINTS.CATEGORY_ARTICLES(category)}?page=${nextPage}&limit=10`;
         console.log('🔍 Fetching category articles:', { category, url });
       } else {
-        url = `http://localhost:4000/api/articles/latest?page=${nextPage}&limit=10`;
+        url = `${API_ENDPOINTS.LATEST_ARTICLES}?page=${nextPage}&limit=10`;
       }
       const response = await fetch(url);
       console.log('🔍 Response status:', response.status);
@@ -101,7 +102,7 @@ const CategoryBrowse = () => {
   const fetchGroupedArticles = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/api/articles/grouped?limit=4');
+      const response = await fetch(`${API_ENDPOINTS.GROUPED_CATEGORIES}?limit=4`);
       const data = await response.json();
       setGroupedArticles(data);
     } catch (error) {
