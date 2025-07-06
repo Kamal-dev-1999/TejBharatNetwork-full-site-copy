@@ -6,11 +6,12 @@ import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
 import { useLocation } from "react-router-dom";
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const UserSettings = () => {
   const [settings, setSettings] = useState({
     display: {
-      theme: 'light',
+      theme: 'light', // Will be updated in useEffect
       fontSize: 'medium',
       layoutDensity: 'comfortable',
       showArticlePreview: true,
@@ -64,6 +65,7 @@ const UserSettings = () => {
 
   const location = useLocation();
   const { user } = useAuth();
+  const { theme, setThemeMode } = useTheme();
 
   useEffect(() => {
     if (user) {
@@ -78,6 +80,19 @@ const UserSettings = () => {
       }));
     }
   }, [user]);
+
+  // Update theme when component mounts
+  useEffect(() => {
+    if (theme) {
+      setSettings(prev => ({
+        ...prev,
+        display: {
+          ...prev.display,
+          theme: theme
+        }
+      }));
+    }
+  }, [theme]);
 
   const handleSettingsChange = (section, newSettings) => {
     setSettings(prev => ({
@@ -102,7 +117,7 @@ const UserSettings = () => {
     if (window.confirm('Are you sure you want to reset all settings to default values? This action cannot be undone.')) {
       setSettings({
         display: {
-          theme: 'light',
+          theme: theme, // Keep current theme when resetting
           fontSize: 'medium',
           layoutDensity: 'comfortable',
           showArticlePreview: true,
@@ -230,29 +245,32 @@ const UserSettings = () => {
                   { id: 'light', name: 'Light', icon: 'Sun', description: 'Clean and bright interface' },
                   { id: 'dark', name: 'Dark', icon: 'Moon', description: 'Easy on the eyes' },
                   { id: 'auto', name: 'Auto', icon: 'Monitor', description: 'Follows system preference' }
-                ].map((theme) => (
+                ].map((themeOption) => (
                   <button
-                    key={theme.id}
-                    onClick={() => handleSettingsChange('display', { ...settings.display, theme: theme.id })}
+                    key={themeOption.id}
+                    onClick={() => {
+                      setThemeMode(themeOption.id);
+                      handleSettingsChange('display', { ...settings.display, theme: themeOption.id });
+                    }}
                     className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
-                      settings.display.theme === theme.id
+                      theme === themeOption.id
                         ? 'border-accent bg-accent/5'
                         : 'border-border hover:border-accent/50 hover:bg-surface'
                     }`}
                   >
                     <div className="flex items-center space-x-3 mb-2">
                       <Icon
-                        name={theme.icon}
+                        name={themeOption.icon}
                         size={18}
-                        className={settings.display.theme === theme.id ? 'text-accent' : 'text-text-secondary'}
+                        className={theme === themeOption.id ? 'text-accent' : 'text-text-secondary'}
                       />
                       <span className={`font-medium ${
-                        settings.display.theme === theme.id ? 'text-accent' : 'text-primary'
+                        theme === themeOption.id ? 'text-accent' : 'text-primary'
                       }`}>
-                        {theme.name}
+                        {themeOption.name}
                       </span>
                     </div>
-                    <p className="text-xs text-text-secondary">{theme.description}</p>
+                    <p className="text-xs text-text-secondary">{themeOption.description}</p>
                   </button>
                 ))}
               </div>

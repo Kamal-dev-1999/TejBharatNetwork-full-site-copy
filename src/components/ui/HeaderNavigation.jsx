@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import Icon from '../AppIcon';
 import Button from './Button';
 import SearchInterface from './SearchInterface';
+import ThemeToggle from './ThemeToggle';
 import { useAuth } from "../../contexts/AuthContext";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
@@ -219,6 +220,9 @@ const HeaderNavigation = () => {
               <SearchInterface />
             </div>
 
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* User Info or Login/Sign Up Buttons */}
             {user ? (
               <div className="relative flex items-center space-x-2">
@@ -290,6 +294,11 @@ const HeaderNavigation = () => {
               {/* Mobile Search */}
               <div className="md:hidden">
                 <SearchInterface />
+              </div>
+
+              {/* Mobile Theme Toggle */}
+              <div className="flex justify-center">
+                <ThemeToggle />
               </div>
 
               {/* Mobile Navigation */}

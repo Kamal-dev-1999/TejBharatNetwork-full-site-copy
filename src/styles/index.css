@@ -9,6 +9,13 @@ body {
   font-weight: 400; /* Regular for body */
   background-color: #fff;
   color: #111;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode styles */
+.dark body {
+  background-color: #0F172A;
+  color: #F8FAFC;
 }
 
 /* 🔄 Reset */
@@ -26,6 +33,11 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   font-weight: 700; /* Bold */
   line-height: 1.3;
   color: #111;
+  transition: color 0.3s ease;
+}
+
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, .dark .font-heading {
+  color: #F8FAFC;
 }
 
 @keyframes neon-pulse-red {

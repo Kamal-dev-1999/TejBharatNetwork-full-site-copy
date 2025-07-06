@@ -4,6 +4,7 @@ module.exports = {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -163,5 +164,36 @@ module.exports = {
     require('@tailwindcss/typography'),
     require('@tailwindcss/forms'),
     require('tailwindcss-animate'),
+    function({ addUtilities, theme }) {
+      const darkModeUtilities = {
+        '.dark': {
+          '--tw-bg-opacity': '1',
+          '--tw-text-opacity': '1',
+          '--tw-border-opacity': '1',
+        },
+        '.dark .bg-background': {
+          'background-color': '#0F172A', // slate-900
+        },
+        '.dark .bg-surface': {
+          'background-color': '#1E293B', // slate-800
+        },
+        '.dark .text-primary': {
+          'color': '#F8FAFC', // slate-50
+        },
+        '.dark .text-text-primary': {
+          'color': '#F8FAFC', // slate-50
+        },
+        '.dark .text-text-secondary': {
+          'color': '#94A3B8', // slate-400
+        },
+        '.dark .border-border': {
+          'border-color': '#334155', // slate-700
+        },
+        '.dark .border-border-muted': {
+          'border-color': '#1E293B', // slate-800
+        },
+      };
+      addUtilities(darkModeUtilities);
+    },
   ],
 }
