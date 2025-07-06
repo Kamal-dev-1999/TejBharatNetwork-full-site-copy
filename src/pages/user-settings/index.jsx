@@ -7,6 +7,7 @@ import Button from '../../components/ui/Button';
 import { useLocation } from "react-router-dom";
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const UserSettings = () => {
   const [settings, setSettings] = useState({
@@ -66,6 +67,7 @@ const UserSettings = () => {
   const location = useLocation();
   const { user } = useAuth();
   const { theme, setThemeMode } = useTheme();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (user) {
@@ -204,9 +206,9 @@ const UserSettings = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-3xl font-bold text-primary">Settings</h1>
+                <h1 className="text-3xl font-bold text-primary">{t('settings')}</h1>
                 <p className="text-text-secondary mt-2">
-                  Customize your NewsHub experience and manage your account preferences
+                  {t('customize_settings', 'Customize your NewsHub experience and manage your account preferences')}
                 </p>
               </div>
             </div>
@@ -216,22 +218,22 @@ const UserSettings = () => {
           <div className="bg-background border border-border rounded-lg p-6 mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center text-white text-2xl font-bold">
-                {user?.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
+                {user?.displayName ? user.displayName.charAt(0).toUpperCase() : t('user', 'U')}
               </div>
               <div>
-                <div className="text-xl font-semibold text-primary">{user?.displayName || 'User'}</div>
-                <div className="text-sm text-text-secondary">{user?.email || 'No email'}</div>
+                <div className="text-xl font-semibold text-primary">{user?.displayName || t('user')}</div>
+                <div className="text-sm text-text-secondary">{user?.email || t('email')}</div>
               </div>
             </div>
             <div className="flex flex-col md:flex-row gap-3 md:gap-4">
               <Button variant="outline" iconName="Lock" onClick={() => alert('Update password functionality coming soon!')}>
-                Update Password
+                {t('update_password')}
               </Button>
               <Button variant="outline" iconName="RefreshCcw" onClick={() => alert('Reset password functionality coming soon!')}>
-                Reset Password
+                {t('reset_password')}
               </Button>
               <Button variant="outline" iconName="User" onClick={() => alert('Edit profile functionality coming soon!')}>
-                Edit Profile
+                {t('edit_profile')}
               </Button>
             </div>
           </div>

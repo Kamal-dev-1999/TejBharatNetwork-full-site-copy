@@ -1,0 +1,19 @@
+{
+  "settings": "Settings",
+  "save": "Save",
+  "reset": "Reset",
+  "user": "User",
+  "email": "Email",
+  "update_password": "Update Password",
+  "reset_password": "Reset Password",
+  "edit_profile": "Edit Profile",
+  "localization": "Localization Settings",
+  "theme": "Theme",
+  "display_preferences": "Display Preferences",
+  "notification_settings": "Notification Settings",
+  "privacy_controls": "Privacy Controls",
+  "account_management": "Account Management",
+  "sign_in": "Sign In",
+  "sign_up": "Sign Up",
+  "logout": "Logout"
+} 

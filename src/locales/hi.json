@@ -1,0 +1,19 @@
+{
+  "settings": "सेटिंग्स",
+  "save": "सहेजें",
+  "reset": "रीसेट",
+  "user": "उपयोगकर्ता",
+  "email": "ईमेल",
+  "update_password": "पासवर्ड अपडेट करें",
+  "reset_password": "पासवर्ड रीसेट करें",
+  "edit_profile": "प्रोफ़ाइल संपादित करें",
+  "localization": "स्थानीयकरण सेटिंग्स",
+  "theme": "थीम",
+  "display_preferences": "प्रदर्शन प्राथमिकताएँ",
+  "notification_settings": "सूचना सेटिंग्स",
+  "privacy_controls": "गोपनीयता नियंत्रण",
+  "account_management": "खाता प्रबंधन",
+  "sign_in": "साइन इन करें",
+  "sign_up": "साइन अप करें",
+  "logout": "लॉग आउट"
+} 

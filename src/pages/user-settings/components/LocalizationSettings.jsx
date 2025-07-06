@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../../i18n';
 
 const LocalizationSettings = ({ settings, onSettingsChange }) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const { t } = useTranslation();
 
   const languages = [
     { code: 'en', name: 'English', nativeName: 'English' },
@@ -11,6 +14,7 @@ const LocalizationSettings = ({ settings, onSettingsChange }) => {
   ];
 
   const handleLanguageChange = (languageCode) => {
+    i18n.changeLanguage(languageCode);
     onSettingsChange('localization', {
       ...settings.localization,
       language: languageCode
@@ -26,7 +30,7 @@ const LocalizationSettings = ({ settings, onSettingsChange }) => {
         <div className="flex items-center space-x-3">
           <Icon name="Globe" size={20} className="text-accent" />
           <div>
-            <h3 className="text-lg font-semibold text-primary">Localization Settings</h3>
+            <h3 className="text-lg font-semibold text-primary">{t('localization')}</h3>
             <p className="text-sm text-text-secondary">Language, region, and format preferences</p>
           </div>
         </div>
@@ -43,7 +47,7 @@ const LocalizationSettings = ({ settings, onSettingsChange }) => {
         <div className="px-6 pb-6 space-y-8">
           {/* Language Selection */}
           <div>
-            <h4 className="text-sm font-semibold text-primary mb-4">Language</h4>
+            <h4 className="text-sm font-semibold text-primary mb-4">{t('language') || 'Language'}</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {languages.map((language) => (
                 <label
