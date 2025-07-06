@@ -10,6 +10,86 @@ import LoadMoreButton from './components/LoadMoreButton';
 
 const API_URL = 'http://localhost:4000/api/articles2/latest?limit=20';
 
+// Source-specific color mapping for better visual distinction
+const SOURCE_COLORS = {
+  'Times of India': '#1E40AF', // Blue
+  'Hindustan Times': '#DC2626', // Red
+  'The Hindu': '#059669', // Green
+  'Indian Express': '#7C3AED', // Purple
+  'Economic Times': '#D97706', // Orange
+  'Business Standard': '#0891B2', // Cyan
+  'Mint': '#059669', // Green
+  'Livemint': '#059669', // Green
+  'NDTV': '#DC2626', // Red
+  'CNN-News18': '#1E40AF', // Blue
+  'India Today': '#DC2626', // Red
+  'Outlook': '#7C3AED', // Purple
+  'The Wire': '#059669', // Green
+  'Scroll.in': '#DC2626', // Red
+  'The Quint': '#7C3AED', // Purple
+  'News18': '#DC2626', // Red
+  'Zee News': '#1E40AF', // Blue
+  'ABP News': '#DC2626', // Red
+  'Republic TV': '#DC2626', // Red
+  'Times Now': '#1E40AF' // Blue
+};
+
+// Function to generate source logo with letter
+const generateSourceLogo = (sourceName) => {
+  // Try to get source-specific color first
+  let backgroundColor = SOURCE_COLORS[sourceName];
+  
+  // If no specific color, try partial match
+  if (!backgroundColor) {
+    const sourceLower = sourceName.toLowerCase().trim();
+    for (const [key, color] of Object.entries(SOURCE_COLORS)) {
+      const keyLower = key.toLowerCase();
+      if (sourceLower.includes(keyLower) || keyLower.includes(sourceLower)) {
+        backgroundColor = color;
+        break;
+      }
+    }
+  }
+  
+  // If still no color, use fallback colors
+  if (!backgroundColor) {
+    const fallbackColors = [
+      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+      '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+      '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D7BDE2',
+      '#A9CCE3', '#F9E79F', '#D5A6BD', '#A2D9CE', '#FAD7A0'
+    ];
+    
+    let hash = 0;
+    for (let i = 0; i < sourceName.length; i++) {
+      hash = sourceName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const colorIndex = Math.abs(hash) % fallbackColors.length;
+    backgroundColor = fallbackColors[colorIndex];
+  }
+  
+  const firstLetter = sourceName.charAt(0).toUpperCase();
+  const svg = `
+    <svg width="50" height="50" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="25" cy="25" r="20" fill="${backgroundColor}"/>
+      <text x="25" y="30" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">${firstLetter}</text>
+    </svg>
+  `;
+  
+  return 'data:image/svg+xml;base64,' + btoa(svg);
+};
+
+// Function to get source logo
+const getSourceLogo = (sourceName) => {
+  if (!sourceName) {
+    console.log('NewsHomepage: No source name provided');
+    return generateSourceLogo('Unknown');
+  }
+  
+  console.log(`NewsHomepage: Generating logo for source: "${sourceName}"`);
+  return generateSourceLogo(sourceName);
+};
+
 const NewsHomepage = () => {
   const [articles, setArticles] = useState([]);
   const [featuredArticle, setFeaturedArticle] = useState(null);
@@ -21,79 +101,79 @@ const NewsHomepage = () => {
   const [bookmarkCount, setBookmarkCount] = useState(0);
 
   // Fetch articles from backend
-  const fetchArticles = useCallback(async () => {
-    setIsLoading(true);
+  const fetchArticles = useCallback(async (pageNum = 1, isLoadMore = false) => {
+    if (isLoadMore) {
+      setIsLoadingMore(true);
+    } else {
+      setIsLoading(true);
+    }
+    
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(`${API_URL}&page=${pageNum}`);
       const data = await response.json();
+      
       // Map backend fields to frontend props
-      const mapped = (data.articles || []).map((a, idx) => ({
-        id: a._id || idx,
-        title: a.title,
-        summary: a.summary,
-        excerpt: a.summary,
-        image: (a.image_url || a.image || '').trim(),
-        source: a.source,
-        category: a.category,
-        publishedAt: a.published_dt ? new Date(a.published_dt).toLocaleString() : '',
-        readTime: a.full_text ? Math.max(1, Math.round((a.full_text || '').split(' ').length / 200)) + ' min read' : '',
-        isBookmarked: false,
-        link: a.link,
-        author: {
-          avatar: 'https://randomuser.me/api/portraits/lego/1.jpg', // Placeholder
-          name: a.source || 'Unknown'
-        }
-      }));
-      setFeaturedArticle(mapped[0] || null);
-      setArticles(mapped);
+      const mapped = (data.articles || []).map((a, idx) => {
+        const sourceLogo = getSourceLogo(a.source);
+        console.log(`NewsHomepage Article ${idx}: Source="${a.source}", Logo="${sourceLogo.substring(0, 50)}..."`);
+        return {
+          id: a._id, // Always use MongoDB ObjectId, don't fallback to index
+          title: a.title,
+          summary: a.summary,
+          excerpt: a.summary,
+          image: (a.image_url || a.image || '').trim(),
+          source: a.source,
+          category: a.category,
+          publishedAt: a.published_dt ? new Date(a.published_dt).toLocaleString() : '',
+          readTime: a.full_text ? Math.max(1, Math.round((a.full_text || '').split(' ').length / 200)) + ' min read' : '',
+          isBookmarked: false,
+          link: a.link,
+          author: {
+            avatar: sourceLogo,
+            name: a.source || 'Unknown'
+          }
+        };
+      });
+      
+      if (isLoadMore) {
+        // Append new articles to existing ones
+        setArticles(prev => [...prev, ...mapped]);
+        // Use backend's hasMore flag for better accuracy
+        setHasMore(data.hasMore || false);
+      } else {
+        // Set initial articles
+        setFeaturedArticle(mapped[0] || null);
+        setArticles(mapped);
+        setHasMore(data.hasMore || false);
+      }
     } catch (error) {
       console.error('Failed to fetch articles:', error);
     }
-    setIsLoading(false);
+    
+    if (isLoadMore) {
+      setIsLoadingMore(false);
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     
-    // Simulate refresh API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Shuffle articles to simulate new content
-    const shuffled = [...articles].sort(() => Math.random() - 0.5);
-    const featured = shuffled[0];
-    const remainingArticles = shuffled.slice(1, 11);
-    
-    setFeaturedArticle(featured);
-    setArticles(remainingArticles);
+    // Reset to page 1 and fetch fresh articles
     setPage(1);
+    await fetchArticles(1, false);
     setHasMore(true);
     setIsRefreshing(false);
-  }, [articles]);
+  }, [fetchArticles]);
 
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !hasMore) return;
     
-    setIsLoadingMore(true);
-    
-    // Simulate load more API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newArticles = articles.slice(0, 10).map(article => ({
-      ...article,
-      id: article.id + (page * 10),
-      publishedAt: `${page + 1} day${page > 0 ? 's' : ''} ago`
-    }));
-    
-    setArticles(prev => [...prev, ...newArticles]);
-    setPage(prev => prev + 1);
-    
-    // Simulate reaching end of content
-    if (page >= 3) {
-      setHasMore(false);
-    }
-    
-    setIsLoadingMore(false);
-  }, [page, isLoadingMore, hasMore, articles]);
+    const nextPage = page + 1;
+    setPage(nextPage);
+    await fetchArticles(nextPage, true);
+  }, [page, isLoadingMore, hasMore, fetchArticles]);
 
   const handleBookmarkToggle = useCallback((articleId, isBookmarked) => {
     setArticles(prev => 
@@ -112,9 +192,9 @@ const NewsHomepage = () => {
   }, [featuredArticle]);
 
   useEffect(() => {
-    fetchArticles();
+    fetchArticles(1, false);
     // Refresh every 2 hours
-    const interval = setInterval(fetchArticles, 2 * 60 * 60 * 1000);
+    const interval = setInterval(() => fetchArticles(1, false), 2 * 60 * 60 * 1000);
     return () => clearInterval(interval);
   }, [fetchArticles]);
 

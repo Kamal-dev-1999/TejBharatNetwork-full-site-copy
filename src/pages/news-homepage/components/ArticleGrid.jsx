@@ -51,8 +51,25 @@ const ArticleGrid = ({ articles, isLoading, onBookmarkToggle }) => {
         <ArticleCard
           key={article.id}
           article={article}
-          onBookmark={() => {}}
-          onShare={() => {}}
+          onBookmark={(articleId) => onBookmarkToggle && onBookmarkToggle(articleId, !article.isBookmarked)}
+          onShare={(article) => {
+            // Share functionality
+            try {
+              const shareData = {
+                title: article?.title,
+                text: article?.excerpt,
+                url: `${window.location.origin}/article-detail-page?id=${article?.id}&title=${encodeURIComponent(article?.title || '')}&category=${article?.category || ''}`
+              };
+              if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                navigator.share(shareData);
+              } else {
+                const url = shareData.url;
+                navigator.clipboard.writeText(url);
+              }
+            } catch (error) {
+              console.error('Share failed:', error);
+            }
+          }}
           className="h-full flex flex-col"
         />
       ))}

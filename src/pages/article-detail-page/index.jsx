@@ -11,6 +11,115 @@ import LoadingState from './components/LoadingState';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
 
+// Source logo mapping with real logos
+const SOURCE_LOGOS = {
+  'Times of India': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Times_of_India_logo.svg/1200px-Times_of_India_logo.svg.png',
+  'Hindustan Times': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Hindustan_Times_logo.svg/1200px-Hindustan_Times_logo.svg.png',
+  'The Hindu': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/The_Hindu_logo.svg/1200px-The_Hindu_logo.svg.png',
+  'Indian Express': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/The_Indian_Express_logo.svg/1200px-The_Indian_Express_logo.svg.png',
+  'Economic Times': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/The_Economic_Times_logo.svg/1200px-The_Economic_Times_logo.svg.png',
+  'Business Standard': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Business_Standard_logo.svg/1200px-Business_Standard_logo.svg.png',
+  'Mint': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Mint_logo.svg/1200px-Mint_logo.svg.png',
+  'Livemint': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Mint_logo.svg/1200px-Mint_logo.svg.png',
+  'NDTV': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/NDTV_logo.svg/1200px-NDTV_logo.svg.png',
+  'CNN-News18': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/CNN-News18_logo.svg/1200px-CNN-News18_logo.svg.png',
+  'India Today': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/India_Today_logo.svg/1200px-India_Today_logo.svg.png',
+  'Outlook': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Outlook_logo.svg/1200px-Outlook_logo.svg.png',
+  'The Wire': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/The_Wire_logo.svg/1200px-The_Wire_logo.svg.png',
+  'Scroll.in': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Scroll.in_logo.svg/1200px-Scroll.in_logo.svg.png',
+  'The Quint': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/The_Quint_logo.svg/1200px-The_Quint_logo.svg.png',
+  'News18': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/News18_logo.svg/1200px-News18_logo.svg.png',
+  'Zee News': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Zee_News_logo.svg/1200px-Zee_News_logo.svg.png',
+  'ABP News': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/ABP_News_logo.svg/1200px-ABP_News_logo.svg.png',
+  'Republic TV': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Republic_TV_logo.svg/1200px-Republic_TV_logo.svg.png',
+  'Times Now': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Times_Now_logo.svg/1200px-Times_Now_logo.svg.png'
+};
+
+// Function to generate fallback logo with letter
+const generateFallbackLogo = (sourceName) => {
+  const colors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+    '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D7BDE2',
+    '#A9CCE3', '#F9E79F', '#D5A6BD', '#A2D9CE', '#FAD7A0'
+  ];
+  
+  let hash = 0;
+  for (let i = 0; i < sourceName.length; i++) {
+    hash = sourceName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const colorIndex = Math.abs(hash) % colors.length;
+  const backgroundColor = colors[colorIndex];
+  
+  const firstLetter = sourceName.charAt(0).toUpperCase();
+  const svg = `
+    <svg width="50" height="50" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="25" cy="25" r="20" fill="${backgroundColor}"/>
+      <text x="25" y="30" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">${firstLetter}</text>
+    </svg>
+  `;
+  
+  return 'data:image/svg+xml;base64,' + btoa(svg);
+};
+
+// Function to get source logo with fallback
+const getSourceLogo = (sourceName) => {
+  if (!sourceName) {
+    console.log('No source name provided, using default logo');
+    return 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=50&h=50&fit=crop';
+  }
+  
+  console.log(`Looking for logo for source: "${sourceName}"`);
+  
+  // Try exact match first
+  if (SOURCE_LOGOS[sourceName]) {
+    console.log(`Found exact match for "${sourceName}"`);
+    return SOURCE_LOGOS[sourceName];
+  }
+  
+  // Try partial match
+  const sourceLower = sourceName.toLowerCase().trim();
+  for (const [key, logo] of Object.entries(SOURCE_LOGOS)) {
+    const keyLower = key.toLowerCase();
+    if (sourceLower.includes(keyLower) || keyLower.includes(sourceLower)) {
+      console.log(`Found partial match: "${sourceName}" matches "${key}"`);
+      return logo;
+    }
+  }
+  
+  // Try common variations
+  const variations = {
+    'timesofindia': 'Times of India',
+    'hindustantimes': 'Hindustan Times',
+    'thehindu': 'The Hindu',
+    'indianexpress': 'Indian Express',
+    'economictimes': 'Economic Times',
+    'businessstandard': 'Business Standard',
+    'ndtv': 'NDTV',
+    'cnnnews18': 'CNN-News18',
+    'indiatoday': 'India Today',
+    'thewire': 'The Wire',
+    'scroll': 'Scroll.in',
+    'thequint': 'The Quint',
+    'news18': 'News18',
+    'zeenews': 'Zee News',
+    'abpnews': 'ABP News',
+    'republictv': 'Republic TV',
+    'timesnow': 'Times Now'
+  };
+  
+  const sourceClean = sourceLower.replace(/[^a-z]/g, '');
+  if (variations[sourceClean]) {
+    const matchedSource = variations[sourceClean];
+    console.log(`Found variation match: "${sourceName}" -> "${matchedSource}"`);
+    return SOURCE_LOGOS[matchedSource];
+  }
+  
+  // Generate fallback logo with letter
+  console.log(`No logo found for "${sourceName}", generating fallback with letter`);
+  return generateFallbackLogo(sourceName);
+};
+
 const ArticleDetailPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -23,94 +132,68 @@ const ArticleDetailPage = () => {
   const articleTitle = searchParams.get('title');
   const articleCategory = searchParams.get('category');
 
-  // Mock article data
-  const mockArticles = [
-    {
-      id: "1",
-      title: "Revolutionary AI Breakthrough Changes Everything We Know About Machine Learning",
-      summary: "Scientists at leading tech companies have developed a new artificial intelligence system that demonstrates unprecedented capabilities in understanding and generating human-like responses across multiple domains.",
-      content: `In a groundbreaking development that could reshape the landscape of artificial intelligence, researchers have unveiled a revolutionary AI system that demonstrates capabilities previously thought to be decades away.\n\nThe new system, developed through a collaboration between leading technology companies and academic institutions, represents a significant leap forward in machine learning architecture. Unlike previous AI models that were designed for specific tasks, this breakthrough system exhibits remarkable versatility across multiple domains.\n\n"What we're seeing here is not just an incremental improvement, but a fundamental shift in how AI systems can understand and interact with the world," explains Dr. Sarah Chen, lead researcher on the project. "The implications for industries ranging from healthcare to education are profound."\n\nThe system's most impressive feature is its ability to understand context and nuance in ways that previous AI models struggled with. During testing, it demonstrated sophisticated reasoning capabilities, creative problem-solving skills, and an understanding of complex ethical considerations.\n\nEarly applications of the technology are already showing promise in medical diagnosis, where the AI has successfully identified rare conditions that human doctors initially missed. In educational settings, the system has proven capable of adapting its teaching methods to individual learning styles.\n\nHowever, the development has also raised important questions about the future of work and the need for robust AI safety measures. Industry experts emphasize the importance of responsible deployment and continued research into AI alignment.\n\n"This breakthrough represents both tremendous opportunity and significant responsibility," notes Dr. Michael Rodriguez, an AI ethics researcher. "We must ensure that as we advance these capabilities, we do so with careful consideration of their impact on society."\n\nThe research team plans to continue refining the system while working closely with policymakers and ethicists to establish guidelines for its responsible use. Commercial applications are expected to begin rolling out within the next two years, starting with carefully controlled pilot programs in healthcare and education.\n\nAs the AI revolution continues to accelerate, this latest breakthrough serves as both a testament to human ingenuity and a reminder of the importance of thoughtful, ethical development in emerging technologies.`,
-      category: "Technology",
-      author: {
-        name: "Dr. Sarah Chen",
-        role: "Senior Technology Reporter",
-        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
-      },
-      source: {
-        name: "TechNews Daily",
-        logo: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=50&h=50&fit=crop"
-      },
-      imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop",
-      publishedAt: "2024-01-15T10:30:00Z",
-      readingTime: 8,
-      views: "2.1k"
-    },
-    {
-      id: "2",
-      title: "Global Climate Summit Reaches Historic Agreement on Carbon Emissions",
-      summary: "World leaders unite in unprecedented commitment to reduce global carbon emissions by 50% within the next decade, marking a turning point in international climate action.",
-      content: `In a historic moment for global environmental policy, representatives from 195 countries have reached a landmark agreement at the Global Climate Summit, committing to ambitious carbon emission reduction targets that exceed all previous international accords.\n\nThe agreement, formally known as the Global Carbon Reduction Pact, establishes binding commitments for participating nations to reduce their carbon emissions by 50% within the next decade, with interim targets of 25% reduction by 2027.\n\n"Today marks a turning point in our collective fight against climate change," declared Summit President Maria Gonzalez during the closing ceremony. "For the first time in history, we have achieved truly global consensus on the urgent action needed to protect our planet for future generations."\n\nThe pact includes several groundbreaking provisions that distinguish it from previous climate agreements. Most notably, it establishes a global carbon trading system that will allow countries to buy and sell emission credits, creating economic incentives for rapid decarbonization.\n\nAdditionally, the agreement includes a $500 billion Global Climate Fund, contributed by developed nations, to support developing countries in their transition to renewable energy sources. This fund represents the largest international climate financing commitment in history.\n\nKey provisions of the agreement include mandatory renewable energy targets, with all signatory nations committing to generate at least 70% of their electricity from renewable sources by 2030. The pact also establishes strict regulations on deforestation and includes provisions for reforestation projects worldwide.\n\nThe private sector has responded enthusiastically to the agreement, with major corporations announcing new sustainability initiatives within hours of the pact's signing. Technology companies have pledged to accelerate development of clean energy solutions, while automotive manufacturers have committed to faster timelines for electric vehicle adoption.\n\nEnvironmental groups, while cautiously optimistic, emphasize that the real test will be in implementation. "This agreement represents unprecedented political will," says Dr. James Thompson, director of the Global Environmental Institute. "Now we must ensure that these commitments translate into concrete action."\n\nThe agreement includes robust monitoring and enforcement mechanisms, with annual reviews and potential economic sanctions for countries that fail to meet their targets. Independent international bodies will oversee compliance and provide technical assistance to nations struggling to meet their commitments.\n\nAs the world begins to implement this historic agreement, the focus now shifts to the practical challenges of transforming global energy systems while maintaining economic growth and social stability.`,
-      category: "Politics",
-      author: {
-        name: "Maria Gonzalez",
-        role: "Environmental Correspondent",
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
-      },
-      source: {
-        name: "Global News Network",
-        logo: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=50&h=50&fit=crop"
-      },
-      imageUrl: "https://images.unsplash.com/photo-1569163139394-de4e4f43e4e5?w=800&h=400&fit=crop",
-      publishedAt: "2024-01-14T14:20:00Z",
-      readingTime: 12,
-      views: "5.7k"
-    },
-    {
-      id: "3",
-      title: "Stock Markets Surge Following Federal Reserve Interest Rate Decision",
-      summary: "Major stock indices reach record highs as investors respond positively to the Federal Reserve's decision to maintain current interest rates while signaling potential future cuts.",
-      content: `Financial markets experienced their strongest rally in months following the Federal Reserve's latest monetary policy announcement, with major indices closing at record highs as investors celebrated the central bank's dovish stance on future interest rate policy.\n\nThe Dow Jones Industrial Average surged 2.3% to close at 38,547 points, while the S&P 500 gained 2.1% and the technology-heavy Nasdaq Composite jumped 2.8%. The rally was broad-based, with all major sectors participating in the advance.\n\nFederal Reserve Chairman Jerome Powell's post-meeting press conference struck a notably optimistic tone, citing improving inflation trends and a resilient labor market as key factors in the committee's decision to hold rates steady at their current range of 5.25% to 5.50%.\n\n"The data we're seeing suggests that our monetary policy is working as intended," Powell explained to reporters. "Inflation continues to move toward our 2% target while the labor market remains robust, giving us confidence in our current approach."\n\nThe Fed's accompanying statement hinted at potential rate cuts later in the year if economic conditions continue to improve, a signal that sent bond yields lower and further fueled the equity rally. The 10-year Treasury yield fell to 4.12%, its lowest level in three months.\n\nTechnology stocks led the advance, with artificial intelligence companies posting particularly strong gains. Semiconductor manufacturers saw their shares rise by an average of 4.2%, while software companies gained 3.8% on average.\n\nThe banking sector also performed well, with regional banks posting gains despite the prospect of lower interest rates. Analysts attributed this to expectations that rate cuts would reduce the sector's funding costs and potentially stimulate loan demand.\n\n"This is exactly what the market was hoping to hear," said Jennifer Walsh, chief investment strategist at Capital Markets Research. "The Fed is threading the needle perfectly, maintaining their inflation-fighting credibility while acknowledging that the economy is strong enough to handle a more accommodative stance."\n\nInternational markets also responded positively to the Fed's announcement, with European indices closing higher and Asian markets opening strongly in overnight trading. The dollar weakened against major currencies, providing additional support for multinational companies.\n\nLooking ahead, investors will be closely watching upcoming economic data releases, particularly employment figures and inflation readings, for further clues about the timing and magnitude of potential rate cuts. Options markets are currently pricing in a 70% probability of at least one rate cut by mid-year.`,
-      category: "Business",
-      author: {
-        name: "Robert Kim",
-        role: "Financial Markets Reporter",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-      },
-      source: {
-        name: "Financial Times",
-        logo: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=50&h=50&fit=crop"
-      },
-      imageUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=400&fit=crop",
-      publishedAt: "2024-01-13T16:45:00Z",
-      readingTime: 6,
-      views: "3.2k"
-    }
-  ];
-
   useEffect(() => {
     const loadArticle = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        const foundArticle = mockArticles.find(a => a.id === articleId);
+        console.log('Loading article with ID:', articleId);
         
-        if (!foundArticle) {
+        // Fetch article from backend API
+        const response = await fetch(`http://localhost:4000/api/articles/${articleId}`);
+        
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API Error:', errorData);
+          throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('API Response data:', data);
+        
+        if (!data.article) {
+          console.error('No article data in response');
           setError("Article not found");
           return;
         }
 
-        setArticle(foundArticle);
+        // Transform backend data to frontend format
+        const transformedArticle = {
+          id: data.article._id,
+          title: data.article.title,
+          summary: data.article.summary,
+          content: data.article.full_text || data.article.summary,
+          category: data.article.category,
+          author: {
+            name: data.article.source || 'Unknown',
+            role: 'Reporter',
+            avatar: getSourceLogo(data.article.source)
+          },
+          source: {
+            name: data.article.source || 'Unknown',
+            logo: getSourceLogo(data.article.source)
+          },
+          imageUrl: data.article.image_url || data.article.image || '',
+          publishedAt: data.article.published_dt ? new Date(data.article.published_dt).toLocaleString() : '',
+          readingTime: data.article.full_text ? Math.max(1, Math.round((data.article.full_text || '').split(' ').length / 200)) : 5,
+          views: "1.2k",
+          link: data.article.link
+        };
+
+        console.log('Transformed article:', transformedArticle);
+        setArticle(transformedArticle);
         
         // Check if article is bookmarked (simulate from localStorage)
         const bookmarks = JSON.parse(localStorage.getItem('bookmarkedArticles') || '[]');
         setIsBookmarked(bookmarks.includes(articleId));
         
       } catch (err) {
-        setError("Failed to load article");
+        console.error('Failed to load article:', err);
+        setError(err.message || "Failed to load article");
       } finally {
         setIsLoading(false);
       }
