@@ -122,14 +122,13 @@ const ArticleContent = ({ content, readingTime, articleLink }) => {
 
       {/* Read Original Article Link */}
       {articleLink && (
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex justify-end">
           <a
             href={articleLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center px-6 py-3 rounded-full bg-accent text-white dark:bg-accent-dark dark:text-white font-semibold shadow-lg hover:bg-accent/90 dark:hover:bg-accent-dark/90 transition text-lg gap-2"
+            className="text-gray-500 hover:text-gray-700 underline text-sm font-medium transition-colors duration-150"
           >
-            <Icon name="ExternalLink" size={20} />
             Read original article
           </a>
         </div>
