@@ -37,92 +37,86 @@ const HeroSection = ({ featuredArticle }) => {
   }, []);
 
   return (
-    <div className="
-      relative w-full
-      aspect-[4/3]         // Mobile: taller
-      md:aspect-[16/6]     // Desktop: wide and short
-      rounded-lg overflow-hidden flex flex-col md:flex-row
-      border border-border dark:border-border bg-surface dark:bg-surface
-    ">
-      {/* Main News (left side) */}
-      <div className="relative w-full md:w-2/3 h-full">
-        <Link
-          to={`/article-detail-page?id=${featuredArticle.id}&title=${encodeURIComponent(featuredArticle.title)}&category=${featuredArticle.category}`}
-          className="block w-full h-full group"
-        >
-          <Image
-            src={featuredArticle.image}
-            alt={featuredArticle.title}
-            className="w-full h-full object-cover"
-            style={{ aspectRatio: '16/9' }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-          <div className="absolute bottom-6 left-6 right-6 text-white">
-            <div className="flex items-center space-x-2 mb-3">
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent text-white">
+    <div className="relative w-full flex flex-col md:flex-row gap-8 rounded-2xl overflow-hidden border border-border dark:border-border bg-surface dark:bg-surface">
+      {/* Hero Image & Content */}
+      <div className="relative w-full md:w-2/3 h-[28rem] md:h-[32rem] flex items-end">
+        <Image
+          src={featuredArticle.image}
+          alt={featuredArticle.title}
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
+        {/* Strong overlay for text clarity */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/10 dark:from-black/95 dark:via-black/80" />
+        {/* Glassmorphism Text Panel: only behind text, lower left */}
+        <div className="relative z-10 w-full flex justify-start items-end pb-8 pl-8 md:pb-12 md:pl-12">
+          <div className="group max-w-xl w-full bg-white/30 dark:bg-black/40 backdrop-blur-md rounded-2xl p-6 md:p-8 flex flex-col gap-4 shadow-lg transition-all duration-300">
+            <div className="flex items-center gap-3 mb-1">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-accent text-white dark:bg-accent-dark dark:text-white shadow">
                 {featuredArticle.category}
               </span>
-              <span className="text-sm opacity-80">Featured</span>
+              <span className="text-sm text-white/90 font-medium">Featured</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-heading font-bold mb-3 line-clamp-2 text-primary group-hover:text-red-600 transition-colors duration-200">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-heading font-bold text-white drop-shadow leading-tight line-clamp-2">
               {featuredArticle.title}
             </h1>
-            <p className="text-base opacity-90 line-clamp-2 mb-4">
+            <p className="text-base md:text-lg text-white/80 font-medium mb-1 line-clamp-2">
               {featuredArticle.excerpt}
             </p>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <span className="text-sm font-medium">{featuredArticle.source}</span>
-                <span className="text-sm opacity-70">•</span>
-                <span className="text-sm opacity-70">{featuredArticle.publishedAt}</span>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mt-2">
+              <div className="flex items-center gap-2 text-white/90 text-sm font-medium">
+                <span>{featuredArticle.source}</span>
+                <span className="text-lg font-bold">•</span>
+                <span>{featuredArticle.publishedAt}</span>
               </div>
-              <div className="flex items-center space-x-1 text-sm opacity-80 group-hover:opacity-100 transition-opacity duration-200">
-                <span>Read more</span>
-                <Icon name="ArrowRight" size={16} />
-              </div>
+              <Link
+                to={`/article-detail-page?id=${featuredArticle.id}&title=${encodeURIComponent(featuredArticle.title)}&category=${featuredArticle.category}`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent text-white dark:bg-accent-dark dark:text-white font-semibold hover:bg-accent/90 dark:hover:bg-accent-dark/90 transition text-base shadow"
+              >
+                Read more <Icon name="ArrowRight" size={18} />
+              </Link>
             </div>
           </div>
-        </Link>
+        </div>
       </div>
 
-      {/* Politics News Only (right side) */}
+      {/* Sidebar: Professional News Scroll */}
       <div
         ref={politicsRef}
-        className="hidden md:flex w-1/3 h-full bg-background/80 dark:bg-background/60 items-start justify-center p-4 overflow-y-auto border-l border-border dark:border-border no-scrollbar"
+        className="hidden md:flex w-1/3 h-[32rem] bg-background/90 dark:bg-background/60 items-start justify-center p-6 overflow-y-auto border-l border-border dark:border-border no-scrollbar"
       >
-        <div className="w-full flex flex-col gap-4 max-w-xs">
-          {/* Politics Card 1 */}
-          <div className="bg-surface dark:bg-neutral-900 rounded-lg p-4 flex flex-col items-start transition-transform duration-200 hover:scale-105 border border-border dark:border-border">
-            <span className="inline-block px-2 py-1 mb-2 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">Politics</span>
+        <div className="w-full flex flex-col gap-6 max-w-xs">
+          {/* News Card 1 */}
+          <div className="bg-surface dark:bg-neutral-900 rounded-2xl p-6 flex flex-col items-start border border-border dark:border-border transition-all duration-200 hover:scale-[1.03] hover:bg-white/30 hover:backdrop-blur-md hover:dark:bg-black/30">
+            <span className="inline-block px-3 py-1 mb-3 rounded-full text-sm font-semibold bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">Politics</span>
             <h3 className="text-lg font-bold text-primary dark:text-primary mb-2">Parliament Debates New Climate Bill</h3>
-            <p className="text-sm text-secondary dark:text-secondary mb-4">Lawmakers discuss a new bill aiming for net-zero emissions by 2040. Experts say this could reshape the nation's energy landscape.</p>
+            <p className="text-base text-secondary dark:text-secondary mb-4">Lawmakers discuss a new bill aiming for net-zero emissions by 2040. Experts say this could reshape the nation's energy landscape.</p>
             <Link
               to="/category-browse?category=politics"
-              className="inline-block px-4 py-2 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-900 transition"
+              className="inline-block px-5 py-2 rounded bg-red-700 text-white text-sm font-semibold hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-900 transition shadow"
             >
               Read More
             </Link>
           </div>
-          {/* Politics Card 2 */}
-          <div className="bg-surface dark:bg-neutral-900 rounded-lg p-4 flex flex-col items-start transition-transform duration-200 hover:scale-105 border border-border dark:border-border">
-            <span className="inline-block px-2 py-1 mb-2 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">Politics</span>
+          {/* News Card 2 */}
+          <div className="bg-surface dark:bg-neutral-900 rounded-2xl p-6 flex flex-col items-start border border-border dark:border-border transition-all duration-200 hover:scale-[1.03] hover:bg-white/30 hover:backdrop-blur-md hover:dark:bg-black/30">
+            <span className="inline-block px-3 py-1 mb-3 rounded-full text-sm font-semibold bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">Politics</span>
             <h3 className="text-lg font-bold text-primary dark:text-primary mb-2">Election Results Announced</h3>
-            <p className="text-sm text-secondary dark:text-secondary mb-4">The latest election brings major changes to parliament, with new leaders promising reform and transparency.</p>
+            <p className="text-base text-secondary dark:text-secondary mb-4">The latest election brings major changes to parliament, with new leaders promising reform and transparency.</p>
             <Link
               to="/category-browse?category=politics"
-              className="inline-block px-4 py-2 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-900 transition"
+              className="inline-block px-5 py-2 rounded bg-red-700 text-white text-sm font-semibold hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-900 transition shadow"
             >
               Read More
             </Link>
           </div>
-          {/* Politics Card 3 */}
-          <div className="bg-surface dark:bg-neutral-900 rounded-lg p-4 flex flex-col items-start transition-transform duration-200 hover:scale-105 border border-border dark:border-border">
-            <span className="inline-block px-2 py-1 mb-2 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">Politics</span>
+          {/* News Card 3 */}
+          <div className="bg-surface dark:bg-neutral-900 rounded-2xl p-6 flex flex-col items-start border border-border dark:border-border transition-all duration-200 hover:scale-[1.03] hover:bg-white/30 hover:backdrop-blur-md hover:dark:bg-black/30">
+            <span className="inline-block px-3 py-1 mb-3 rounded-full text-sm font-semibold bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">Politics</span>
             <h3 className="text-lg font-bold text-primary dark:text-primary mb-2">Government Unveils New Education Policy</h3>
-            <p className="text-sm text-secondary dark:text-secondary mb-4">A new education policy aims to improve access and quality for students nationwide, focusing on digital learning.</p>
+            <p className="text-base text-secondary dark:text-secondary mb-4">A new education policy aims to improve access and quality for students nationwide, focusing on digital learning.</p>
             <Link
               to="/category-browse?category=politics"
-              className="inline-block px-4 py-2 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-900 transition"
+              className="inline-block px-5 py-2 rounded bg-red-700 text-white text-sm font-semibold hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-900 transition shadow"
             >
               Read More
             </Link>
