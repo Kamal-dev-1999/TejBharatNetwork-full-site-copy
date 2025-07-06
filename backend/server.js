@@ -49,6 +49,7 @@ const CATEGORIES = [
   "Mumbai",          // regional
   "National News",
   "International News",
+  "Politics",        // added politics
   "Finance",
   "Aviation",
   "Technology",
@@ -92,6 +93,50 @@ app.get('/api/articles', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Search articles by title or category
+// GET /api/articles/search?q=keyword&page=1&limit=10
+app.get('/api/articles/search', async (req, res) => {
+  try {
+    const { q, page = 1, limit = 12 } = req.query;
+    
+    if (!q || q.trim() === '') {
+      return res.status(400).json({ error: 'Missing search query' });
+    }
+
+    console.log('🔍 Search request:', { q, page, limit });
+
+    const regex = new RegExp(q.trim(), 'i'); // case-insensitive
+    const filter = {
+      $or: [
+        { title: regex },
+        { summary: regex },
+        { category: regex },
+        { source: regex }
+      ]
+    };
+
+    const total = await ArticleModel.countDocuments(filter);
+    const docs = await ArticleModel.find(filter)
+      .sort({ fetched_at: -1 })
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .lean();
+
+    console.log(`🔍 Found ${docs.length} articles for query "${q}"`);
+
+    res.json({
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      totalPages: Math.ceil(total / limit),
+      articles: docs
+    });
+  } catch (err) {
+    console.error('❌ Search error:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -202,7 +247,7 @@ app.get('/api/latest-by-category', async (req, res) => {
     // List of categories you want to show
     const categories = [
       "Breaking News", "Mumbai", "National News", "International News",
-      "Finance", "Aviation", "Technology", "Sports", "Entertainment", "Opinion"
+      "Politics", "Finance", "Aviation", "Technology", "Sports", "Entertainment", "Opinion"
     ];
 
     // For each category, get the latest N articles (e.g., 10)
@@ -223,15 +268,30 @@ app.get('/api/latest-by-category', async (req, res) => {
 // Paginated, latest articles for a single category
 // GET /api/articles/category/:category?page=1&limit=10
 app.get('/api/articles/category/:category', async (req, res) => {
+  console.log('🔍 Backend: Received request for category:', req.params.category);
   try {
     const { category } = req.params;
-    if (!CATEGORIES.includes(category)) {
-      return res.status(400).json({ error: 'Invalid category' });
-    }
+    console.log('🔍 Backend received category:', category);
+    console.log('🔍 Available categories:', CATEGORIES);
+    console.log('🔍 Category included?', CATEGORIES.includes(category));
+    
+    // Check what categories actually exist in the database
+    const existingCategories = await ArticleModel.distinct('category');
+    console.log('🔍 Categories in database:', existingCategories);
+    
+    // Try case-insensitive matching
+    const matchedCategory = CATEGORIES.find(cat => cat.toLowerCase() === category.toLowerCase());
+    console.log('🔍 Case-insensitive match:', matchedCategory);
+    
+    // Temporarily skip validation to see if data exists
+    console.log('🔍 Skipping category validation for debugging');
+    
+    // Use the matched category if found, otherwise use the original
+    const finalCategory = matchedCategory || category;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const filter = { category };
+    const filter = { category: finalCategory };
     const total = await ArticleModel.countDocuments(filter);
     const docs = await ArticleModel.find(filter)
       .sort({ fetched_at: -1 })

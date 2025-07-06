@@ -11,7 +11,7 @@ import PullToRefresh from './components/PullToRefresh';
 import Icon from '../../components/AppIcon';
 
 const CATEGORIES = [
-  "Breaking News", "Mumbai", "National News", "International News",
+  "Breaking News", "Politics", "Mumbai", "National News", "International News",
   "Finance", "Aviation", "Technology", "Sports", "Entertainment", "Opinion"
 ];
 
@@ -20,6 +20,8 @@ const CategoryBrowse = () => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const category = searchParams.get('category');
+  console.log('🔍 Raw category from URL:', category);
+  console.log('🔍 Full URL:', location.pathname + location.search);
   
   const [activeSubcategory, setActiveSubcategory] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
@@ -40,11 +42,17 @@ const CategoryBrowse = () => {
       let url;
       if (category) {
         url = `http://localhost:4000/api/articles/category/${encodeURIComponent(category)}?page=${nextPage}&limit=10`;
+        console.log('🔍 Fetching category articles:', { category, url });
       } else {
         url = `http://localhost:4000/api/articles/latest?page=${nextPage}&limit=10`;
       }
       const response = await fetch(url);
+      console.log('🔍 Response status:', response.status);
       const data = await response.json();
+      console.log('🔍 Response data:', data);
+      if (!response.ok) {
+        console.error('🔍 Error response:', data);
+      }
       const mapped = (data.articles || []).map((a, idx) => ({
         id: a._id || idx,
         title: a.title || '',

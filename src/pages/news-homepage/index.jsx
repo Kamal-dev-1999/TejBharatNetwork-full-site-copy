@@ -7,8 +7,12 @@ import ArticleGrid from './components/ArticleGrid';
 import FloatingActionButton from './components/FloatingActionButton';
 import RefreshIndicator from './components/RefreshIndicator';
 import LoadMoreButton from './components/LoadMoreButton';
+import Footer from './components/Footer';
 
 const API_URL = 'http://localhost:4000/api/articles2/latest?limit=20';
+
+// Alternative: Fetch from grouped categories to ensure Politics is included
+const GROUPED_API_URL = 'http://localhost:4000/api/latest-by-category';
 
 // Source-specific color mapping for better visual distinction
 const SOURCE_COLORS = {
@@ -109,13 +113,30 @@ const NewsHomepage = () => {
     }
     
     try {
-      const response = await fetch(`${API_URL}&page=${pageNum}`);
-      const data = await response.json();
+      // Use grouped API to ensure all categories including Politics are included
+      const response = await fetch(GROUPED_API_URL);
+      const groupedData = await response.json();
+      
+      // Flatten all articles from different categories
+      let allArticles = [];
+      Object.values(groupedData).forEach(categoryArticles => {
+        if (Array.isArray(categoryArticles)) {
+          allArticles = [...allArticles, ...categoryArticles];
+        }
+      });
+      
+      // Sort by fetched_at date (most recent first)
+      allArticles.sort((a, b) => new Date(b.fetched_at) - new Date(a.fetched_at));
+      
+      // Apply pagination
+      const startIndex = (pageNum - 1) * 20;
+      const endIndex = startIndex + 20;
+      const paginatedArticles = allArticles.slice(startIndex, endIndex);
       
       // Map backend fields to frontend props
-      const mapped = (data.articles || []).map((a, idx) => {
+      const mapped = paginatedArticles.map((a, idx) => {
         const sourceLogo = getSourceLogo(a.source);
-        console.log(`NewsHomepage Article ${idx}: Source="${a.source}", Logo="${sourceLogo.substring(0, 50)}..."`);
+        console.log(`NewsHomepage Article ${idx}: Source="${a.source}", Category="${a.category}", Logo="${sourceLogo.substring(0, 50)}..."`);
         return {
           id: a._id, // Always use MongoDB ObjectId, don't fallback to index
           title: a.title,
@@ -138,13 +159,13 @@ const NewsHomepage = () => {
       if (isLoadMore) {
         // Append new articles to existing ones
         setArticles(prev => [...prev, ...mapped]);
-        // Use backend's hasMore flag for better accuracy
-        setHasMore(data.hasMore || false);
+        // Check if there are more articles
+        setHasMore(endIndex < allArticles.length);
       } else {
         // Set initial articles
         setFeaturedArticle(mapped[0] || null);
         setArticles(mapped);
-        setHasMore(data.hasMore || false);
+        setHasMore(endIndex < allArticles.length);
       }
     } catch (error) {
       console.error('Failed to fetch articles:', error);
@@ -263,6 +284,8 @@ const NewsHomepage = () => {
         
         <FloatingActionButton bookmarkCount={bookmarkCount} />
       </main>
+      
+      <Footer />
     </div>
   );
 };

@@ -10,6 +10,7 @@ const CategoryChips = () => {
 
   const categories = [
     { name: 'Breaking News', path: '/category-browse?category=Breaking News', icon: 'Home' },
+    { name: 'Politics', path: '/category-browse?category=Politics', icon: 'Flag' },
     { name: 'Mumbai', path: '/category-browse?category=Mumbai', icon: 'Globe' },
     { name: 'National News', path: '/category-browse?category=National News', icon: 'Globe' },
     { name: 'International News', path: '/category-browse?category=International News', icon: 'Globe' },

@@ -28,6 +28,7 @@ const HeaderNavigation = () => {
 
   const categories = [
     { label: 'Breaking News', path: '/category-browse?category=Breaking News' },
+    { label: 'Politics', path: '/category-browse?category=Politics' },
     { label: 'Mumbai', path: '/category-browse?category=Mumbai' },
     { label: 'National News', path: '/category-browse?category=National News' },
     { label: 'International News', path: '/category-browse?category=International News' },
