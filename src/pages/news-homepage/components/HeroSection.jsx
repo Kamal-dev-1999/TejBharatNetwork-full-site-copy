@@ -6,12 +6,12 @@ import Icon from '../../../components/AppIcon';
 const HeroSection = ({ featuredArticle }) => {
   if (!featuredArticle) {
     return (
-      <div className="relative w-full h-96 bg-neutral-200 rounded-lg overflow-hidden animate-pulse">
+      <div className="relative w-full h-96 bg-surface dark:bg-neutral-800 rounded-lg overflow-hidden animate-pulse">
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
         <div className="absolute bottom-6 left-6 right-6">
-          <div className="h-4 bg-white/20 rounded mb-3"></div>
-          <div className="h-8 bg-white/20 rounded mb-2"></div>
-          <div className="h-4 bg-white/20 rounded w-3/4"></div>
+          <div className="h-4 bg-white/20 dark:bg-white/10 rounded mb-3"></div>
+          <div className="h-8 bg-white/20 dark:bg-white/10 rounded mb-2"></div>
+          <div className="h-4 bg-white/20 dark:bg-white/10 rounded w-3/4"></div>
         </div>
       </div>
     );
@@ -42,7 +42,7 @@ const HeroSection = ({ featuredArticle }) => {
       aspect-[4/3]         // Mobile: taller
       md:aspect-[16/6]     // Desktop: wide and short
       rounded-lg overflow-hidden flex flex-col md:flex-row
-      border border-gray-200 bg-transparent
+      border border-border dark:border-border bg-surface dark:bg-surface
     ">
       {/* Main News (left side) */}
       <div className="relative w-full md:w-2/3 h-full">
@@ -88,41 +88,41 @@ const HeroSection = ({ featuredArticle }) => {
       {/* Politics News Only (right side) */}
       <div
         ref={politicsRef}
-        className="hidden md:flex w-1/3 h-full bg-background/80 items-start justify-center p-4 overflow-y-auto border-l border-gray-200 no-scrollbar"
+        className="hidden md:flex w-1/3 h-full bg-background/80 dark:bg-background/60 items-start justify-center p-4 overflow-y-auto border-l border-border dark:border-border no-scrollbar"
       >
         <div className="w-full flex flex-col gap-4 max-w-xs">
           {/* Politics Card 1 */}
-          <div className="bg-white rounded-lg p-4 flex flex-col items-start transition-transform duration-200 hover:scale-105 border border-gray-200">
-            <span className="inline-block px-2 py-1 mb-2 rounded-full text-xs font-medium bg-red-100 text-red-700">Politics</span>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Parliament Debates New Climate Bill</h3>
-            <p className="text-sm text-gray-700 mb-4">Lawmakers discuss a new bill aiming for net-zero emissions by 2040. Experts say this could reshape the nation's energy landscape.</p>
+          <div className="bg-surface dark:bg-neutral-900 rounded-lg p-4 flex flex-col items-start transition-transform duration-200 hover:scale-105 border border-border dark:border-border">
+            <span className="inline-block px-2 py-1 mb-2 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">Politics</span>
+            <h3 className="text-lg font-bold text-primary dark:text-primary mb-2">Parliament Debates New Climate Bill</h3>
+            <p className="text-sm text-secondary dark:text-secondary mb-4">Lawmakers discuss a new bill aiming for net-zero emissions by 2040. Experts say this could reshape the nation's energy landscape.</p>
             <Link
               to="/category-browse?category=politics"
-              className="inline-block px-4 py-2 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition"
+              className="inline-block px-4 py-2 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-900 transition"
             >
               Read More
             </Link>
           </div>
           {/* Politics Card 2 */}
-          <div className="bg-white rounded-lg p-4 flex flex-col items-start transition-transform duration-200 hover:scale-105 border border-gray-200">
-            <span className="inline-block px-2 py-1 mb-2 rounded-full text-xs font-medium bg-red-100 text-red-700">Politics</span>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Election Results Announced</h3>
-            <p className="text-sm text-gray-700 mb-4">The latest election brings major changes to parliament, with new leaders promising reform and transparency.</p>
+          <div className="bg-surface dark:bg-neutral-900 rounded-lg p-4 flex flex-col items-start transition-transform duration-200 hover:scale-105 border border-border dark:border-border">
+            <span className="inline-block px-2 py-1 mb-2 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">Politics</span>
+            <h3 className="text-lg font-bold text-primary dark:text-primary mb-2">Election Results Announced</h3>
+            <p className="text-sm text-secondary dark:text-secondary mb-4">The latest election brings major changes to parliament, with new leaders promising reform and transparency.</p>
             <Link
               to="/category-browse?category=politics"
-              className="inline-block px-4 py-2 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition"
+              className="inline-block px-4 py-2 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-900 transition"
             >
               Read More
             </Link>
           </div>
           {/* Politics Card 3 */}
-          <div className="bg-white rounded-lg p-4 flex flex-col items-start transition-transform duration-200 hover:scale-105 border border-gray-200">
-            <span className="inline-block px-2 py-1 mb-2 rounded-full text-xs font-medium bg-red-100 text-red-700">Politics</span>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Government Unveils New Education Policy</h3>
-            <p className="text-sm text-gray-700 mb-4">A new education policy aims to improve access and quality for students nationwide, focusing on digital learning.</p>
+          <div className="bg-surface dark:bg-neutral-900 rounded-lg p-4 flex flex-col items-start transition-transform duration-200 hover:scale-105 border border-border dark:border-border">
+            <span className="inline-block px-2 py-1 mb-2 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">Politics</span>
+            <h3 className="text-lg font-bold text-primary dark:text-primary mb-2">Government Unveils New Education Policy</h3>
+            <p className="text-sm text-secondary dark:text-secondary mb-4">A new education policy aims to improve access and quality for students nationwide, focusing on digital learning.</p>
             <Link
               to="/category-browse?category=politics"
-              className="inline-block px-4 py-2 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition"
+              className="inline-block px-4 py-2 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-900 transition"
             >
               Read More
             </Link>

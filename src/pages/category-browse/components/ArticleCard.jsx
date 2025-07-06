@@ -126,7 +126,7 @@ const ArticleCard = ({ article, onBookmark, onShare }) => {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <div className="absolute top-3 left-3">
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-background/90 text-primary backdrop-blur-sm">
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent text-white dark:bg-accent-dark dark:text-white shadow">
               {article.category}
             </span>
           </div>
@@ -134,14 +134,14 @@ const ArticleCard = ({ article, onBookmark, onShare }) => {
             <Button
               variant="ghost"
               onClick={handleBookmark}
-              className="w-8 h-8 bg-background/90 backdrop-blur-sm hover:bg-background touch-target"
+              className="w-8 h-8 bg-surface/90 dark:bg-neutral-800/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-surface dark:hover:bg-neutral-700 transition-colors duration-200 touch-target border border-border dark:border-border focus:ring-2 focus:ring-accent dark:focus:ring-accent-dark"
               iconName={article.isBookmarked ? "BookmarkCheck" : "Bookmark"}
               iconSize={14}
             />
             <Button
               variant="ghost"
               onClick={handleShare}
-              className="w-8 h-8 bg-background/90 backdrop-blur-sm hover:bg-background touch-target"
+              className="w-8 h-8 bg-surface/90 dark:bg-neutral-800/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-surface dark:hover:bg-neutral-700 transition-colors duration-200 touch-target border border-border dark:border-border focus:ring-2 focus:ring-accent dark:focus:ring-accent-dark"
               iconName="Share2"
               iconSize={14}
             />
@@ -160,7 +160,7 @@ const ArticleCard = ({ article, onBookmark, onShare }) => {
           </div>
 
           {/* Title with hover effect */}
-          <h3 className="text-lg font-normal text-black group-hover:text-red-600 transition-colors duration-200 mb-2 line-clamp-2">
+          <h3 className="text-lg font-normal text-primary dark:text-primary group-hover:text-red-600 transition-colors duration-200 mb-2 line-clamp-2">
             {article.title}
           </h3>
 
