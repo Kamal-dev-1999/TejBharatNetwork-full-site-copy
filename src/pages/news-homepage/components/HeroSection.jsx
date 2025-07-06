@@ -7,13 +7,15 @@ const HeroSection = ({ featuredArticle }) => {
   const [politicsArticles, setPoliticsArticles] = useState([]);
   const [isLoadingPolitics, setIsLoadingPolitics] = useState(true);
   const politicsRef = useRef(null);
+  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+  const autoScrollInterval = useRef(null);
 
   // Fetch politics articles from database
   useEffect(() => {
     const fetchPoliticsArticles = async () => {
       setIsLoadingPolitics(true);
       try {
-        const response = await fetch('http://localhost:4000/api/articles/latest/National%20News?limit=3');
+        const response = await fetch('http://localhost:4000/api/articles/latest/National%20News?limit=10');
         const data = await response.json();
         
         if (data.articles && data.articles.length > 0) {
@@ -41,24 +43,30 @@ const HeroSection = ({ featuredArticle }) => {
     fetchPoliticsArticles();
   }, []);
 
-  // Auto-scroll effect for politics sidebar - scrolls to bottom and stops
+  // Auto-scroll effect for politics sidebar - animates, pauses on hover
   useEffect(() => {
     const container = politicsRef.current;
     if (!container || politicsArticles.length === 0) return;
-    
-    // Scroll to bottom smoothly and stay there
-    const scrollToBottom = () => {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth'
-      });
-    };
 
-    // Small delay to ensure content is rendered
-    const timer = setTimeout(scrollToBottom, 500);
-    
-    return () => clearTimeout(timer);
-  }, [politicsArticles]);
+    function startAutoScroll() {
+      if (autoScrollInterval.current) clearInterval(autoScrollInterval.current);
+      autoScrollInterval.current = setInterval(() => {
+        if (!isSidebarHovered) {
+          // If at bottom, scroll to top for loop effect
+          if (container.scrollTop + container.clientHeight >= container.scrollHeight - 1) {
+            container.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            container.scrollBy({ top: 1, behavior: 'smooth' });
+          }
+        }
+      }, 20); // Adjust speed as needed
+    }
+
+    startAutoScroll();
+    return () => {
+      if (autoScrollInterval.current) clearInterval(autoScrollInterval.current);
+    };
+  }, [politicsArticles, isSidebarHovered]);
 
   if (!featuredArticle) {
     return (
@@ -142,6 +150,8 @@ const HeroSection = ({ featuredArticle }) => {
         <div
           ref={politicsRef}
           className="hero-scrollbar w-full h-full pt-20 pb-6 px-6 overflow-y-auto scrollbar-thin scrollbar-thumb-red-200 dark:scrollbar-thumb-red-800 scrollbar-track-transparent"
+          onMouseEnter={() => setIsSidebarHovered(true)}
+          onMouseLeave={() => setIsSidebarHovered(false)}
         >
           <div className="w-full flex flex-col gap-4">
             {isLoadingPolitics ? (
