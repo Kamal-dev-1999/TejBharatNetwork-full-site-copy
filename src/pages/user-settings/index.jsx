@@ -209,24 +209,30 @@ const UserSettings = () => {
                   Customize your NewsHub experience and manage your account preferences
                 </p>
               </div>
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant="outline"
-                  onClick={handleResetSettings}
-                  iconName="RotateCcw"
-                >
-                  Reset All
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={handleSaveSettings}
-                  disabled={!hasUnsavedChanges || isAutoSaving}
-                  iconName={isAutoSaving ? "Loader2" : "Save"}
-                  className={isAutoSaving ? "animate-spin" : ""}
-                >
-                  {isAutoSaving ? 'Saving...' : 'Save Changes'}
-                </Button>
+            </div>
+          </div>
+
+          {/* User Profile Section */}
+          <div className="bg-background border border-border rounded-lg p-6 mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center text-white text-2xl font-bold">
+                {user?.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
               </div>
+              <div>
+                <div className="text-xl font-semibold text-primary">{user?.displayName || 'User'}</div>
+                <div className="text-sm text-text-secondary">{user?.email || 'No email'}</div>
+              </div>
+            </div>
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+              <Button variant="outline" iconName="Lock" onClick={() => alert('Update password functionality coming soon!')}>
+                Update Password
+              </Button>
+              <Button variant="outline" iconName="RefreshCcw" onClick={() => alert('Reset password functionality coming soon!')}>
+                Reset Password
+              </Button>
+              <Button variant="outline" iconName="User" onClick={() => alert('Edit profile functionality coming soon!')}>
+                Edit Profile
+              </Button>
             </div>
           </div>
 
