@@ -116,17 +116,17 @@ const HeaderNavigation = () => {
   }, [isProfileDropdownOpen]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-header bg-background border-b border-border safe-area-inset-top">
+    <header className="fixed top-0 left-0 right-0 z-header bg-background border-b border-border safe-area-inset-top overflow-x-visible">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div>
             <Link 
               to="/news-homepage" 
               className="flex items-center space-x-2 group"
               onClick={closeMobileMenu}
             >
-              <div className="w-16 h-16 rounded-lg flex items-center justify-center transition-colors duration-200 overflow-hidden">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg flex items-center justify-center transition-colors duration-200 overflow-hidden">
                 <img 
                   src="/assets/images/tej-bharat-network-logo.png" 
                   alt="तेज भारत NETWORK Logo" 
@@ -215,7 +215,7 @@ const HeaderNavigation = () => {
           </nav>
 
           {/* Search and Mobile Menu */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 flex-shrink-0 min-w-0">
             {/* Desktop Search */}
             <div className="hidden md:block">
               <SearchInterface />

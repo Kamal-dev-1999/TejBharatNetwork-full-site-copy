@@ -20,8 +20,8 @@ services:
     name: newshub-frontend
     env: node
     plan: free
-    buildCommand: npm install && npm run build && cp frontend-package.json dist/ && cp frontend-server.js dist/
-    startCommand: cd dist && npm install && npm start
+    buildCommand: npm install && npm run build && cp frontend-server.js dist/
+    startCommand: cd dist && npm install express && node frontend-server.js
     envVars:
       - key: VITE_API_URL
         value: https://newshub-backend.onrender.com
