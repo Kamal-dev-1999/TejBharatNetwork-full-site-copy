@@ -1,0 +1,17 @@
+{
+  "name": "newshub-frontend-server",
+  "version": "1.0.0",
+  "description": "Frontend server for NewsHub SPA",
+  "main": "frontend-server.js",
+  "scripts": {
+    "start": "node frontend-server.js",
+    "build": "npm install && npm run build:app",
+    "build:app": "cd .. && npm install && npm run build"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 
