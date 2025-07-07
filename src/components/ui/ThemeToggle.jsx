@@ -10,13 +10,15 @@ const ThemeToggle = ({ className = '' }) => {
     <Button
       variant="ghost"
       onClick={toggleTheme}
-      className={`w-10 h-10 p-0 ${className}`}
+      size="xl"
+      shape="circle"
+      className={`w-12 h-12 p-0 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border border-border shadow-sm ${className}`}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
       <Icon
         name={isDark ? 'Sun' : 'Moon'}
-        size={18}
-        className="text-text-secondary hover:text-primary transition-colors duration-200"
+        size={28}
+        className="text-yellow-500 dark:text-yellow-300 transition-colors duration-200"
       />
     </Button>
   );
