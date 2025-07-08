@@ -27,4 +27,8 @@ services:
         value: https://newshub-backend.onrender.com
       - key: NODE_ENV
         value: production
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     healthCheckPath: / 
