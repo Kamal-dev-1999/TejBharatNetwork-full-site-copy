@@ -109,7 +109,10 @@ const ContextualBreadcrumbs = () => {
                     className="text-text-secondary" 
                   />
                 )}
-                <span className="truncate max-w-xs sm:max-w-sm md:max-w-md">
+                <span
+                  className="truncate max-w-[100px] sm:max-w-[180px] md:max-w-[240px] overflow-hidden text-ellipsis block"
+                  title={breadcrumb.label}
+                >
                   {breadcrumb.label}
                 </span>
               </span>
