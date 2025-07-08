@@ -20,8 +20,8 @@ services:
     name: newshub-frontend
     env: node
     plan: free
-    buildCommand: npm install && npm run build && cp frontend-server.js dist/
-    startCommand: cd dist && npm install express && node frontend-server.js
+    buildCommand: npm install && npm run build 
+    startCommand: node frontend-server.js
     staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
