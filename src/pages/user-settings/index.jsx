@@ -288,7 +288,7 @@ const UserSettings = () => {
           {/* Footer */}
           <footer className="mt-12 pt-8 border-t border-border text-center text-sm text-text-secondary">
             <p>
-              © {new Date().getFullYear()} NewsHub. All rights reserved. 
+              © {new Date().getFullYear()} TejBharatNetwork. All rights reserved. 
               <span className="mx-2">•</span>
               <a href="#" className="text-accent hover:text-accent/80">Privacy Policy</a>
               <span className="mx-2">•</span>
@@ -297,7 +297,7 @@ const UserSettings = () => {
               <a href="#" className="text-accent hover:text-accent/80">Cookie Policy</a>
             </p>
             <p className="mt-2">
-              Version 2.1.0 • Last updated: March 15, 2024
+              Version 2.1.0 • Last updated: June 25, 2025
             </p>
           </footer>
         </div>

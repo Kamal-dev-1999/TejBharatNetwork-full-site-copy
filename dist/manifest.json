@@ -1,0 +1,57 @@
+{
+  "short_name": "तेज भारत",
+  "name": "तेज भारत NETWORK",
+  "description": "Your trusted source for latest news, breaking updates, and comprehensive coverage",
+  "icons": [
+    {
+      "src": "/assets/images/tej-bharat-network-logo.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/images/tej-bharat-network-logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/images/tej-bharat-network-logo.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    },
+    {
+      "src": "/assets/images/tej-bharat-network-logo.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "/assets/images/tej-bharat-network-logo.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "/assets/images/tej-bharat-network-logo.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },
+    {
+      "src": "/assets/images/tej-bharat-network-logo.png",
+      "type": "image/png",
+      "sizes": "152x152"
+    },
+    {
+      "src": "/assets/images/tej-bharat-network-logo.png",
+      "type": "image/png",
+      "sizes": "384x384"
+    }
+  ],
+  "start_url": "/news-homepage",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "categories": ["news", "media", "information"],
+  "lang": "en",
+  "dir": "ltr"
+}
