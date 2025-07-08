@@ -18,9 +18,10 @@ services:
   # Frontend React App
   - type: web
     name: newshub-frontend
-    env: static
+    env: node
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npm run build && cp frontend-server.js dist/
+    startCommand: cd dist && npm install express && node frontend-server.js
     staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
