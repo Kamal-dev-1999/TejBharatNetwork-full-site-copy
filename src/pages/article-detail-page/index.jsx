@@ -121,6 +121,44 @@ const getSourceLogo = (sourceName) => {
   return generateFallbackLogo(sourceName);
 };
 
+const GOOGLE_API_KEY = 'AIzaSyCryOwktO78IPFMkfcK7iS_xaI_LgwFdsg';
+
+async function googleTranslateText(text, targetLang) {
+  if (!text || !targetLang) {
+    console.error('Missing text or targetLang for translation');
+    return text;
+  }
+  // Chunk paragraphs for long articles
+  const paragraphs = text.split('\n\n');
+  const translatedParagraphs = [];
+  for (const para of paragraphs) {
+    try {
+      const response = await fetch(
+        `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            q: para,
+            source: 'en',
+            target: targetLang,
+            format: 'text',
+          }),
+        }
+      );
+      const data = await response.json();
+      if (data && data.data && data.data.translations && data.data.translations[0]) {
+        translatedParagraphs.push(data.data.translations[0].translatedText);
+      } else {
+        translatedParagraphs.push(para);
+      }
+    } catch (error) {
+      translatedParagraphs.push(para);
+    }
+  }
+  return translatedParagraphs.join('\n\n');
+}
+
 const ArticleDetailPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();

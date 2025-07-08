@@ -2,27 +2,82 @@ import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'mr', label: 'मराठी' },
+];
+
+const GOOGLE_API_KEY = 'AIzaSyCryOwktO78IPFMkfcK7iS_xaI_LgwFdsg';
+
+async function googleTranslateText(text, targetLang) {
+  if (!text || !targetLang) {
+    console.error('Missing text or targetLang for translation');
+    return text;
+  }
+  // Chunk paragraphs for long articles
+  const paragraphs = text.split('\n\n');
+  const translatedParagraphs = [];
+  for (const para of paragraphs) {
+    try {
+      const response = await fetch(
+        `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            q: para,
+            source: 'en',
+            target: targetLang,
+            format: 'text',
+          }),
+        }
+      );
+      const data = await response.json();
+      if (data && data.data && data.data.translations && data.data.translations[0]) {
+        translatedParagraphs.push(data.data.translations[0].translatedText);
+      } else {
+        translatedParagraphs.push(para);
+      }
+    } catch (error) {
+      translatedParagraphs.push(para);
+    }
+  }
+  return translatedParagraphs.join('\n\n');
+}
+
 const ArticleContent = ({ content, readingTime, articleLink }) => {
   const [fontSize, setFontSize] = useState('base');
+  const [selectedLang, setSelectedLang] = useState('en');
+  const [translatedContent, setTranslatedContent] = useState(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const handleLanguageChange = async (lang) => {
+    setSelectedLang(lang);
+    if (lang === 'en') {
+      setTranslatedContent(null);
+      return;
+    }
+    setIsTranslating(true);
+    // Chunk paragraphs for long articles
+    const paragraphs = content.split('\n\n');
+    const translated = await googleTranslateText(content, lang);
+    setTranslatedContent(translated);
+    setIsTranslating(false);
+  };
 
   const fontSizeClasses = {
     sm: 'text-sm leading-relaxed',
     base: 'text-base leading-relaxed',
     lg: 'text-lg leading-relaxed',
-    xl: 'text-xl leading-relaxed'
-  };
-
-  const adjustFontSize = (size) => {
-    setFontSize(size);
+    xl: 'text-xl leading-relaxed',
   };
 
   // Enhanced paragraph splitting: split at double newlines, or after 2-3 sentences if no double newlines
   const smartSplitParagraphs = (text) => {
-    // If there are double newlines, use them
     if (text.includes('\n\n')) {
       return text.split(/\n\n+/);
     }
-    // Otherwise, split after 2-3 sentences
     const sentences = text.match(/[^.!?]+[.!?]+[\s\n]+|[^.!?]+$/g) || [text];
     const paragraphs = [];
     let para = '';
@@ -41,15 +96,33 @@ const ArticleContent = ({ content, readingTime, articleLink }) => {
   };
 
   const formatContent = (text) => {
-    return smartSplitParagraphs(text).map((paragraph, index) => (
-      <p key={index} className={`mb-8 text-justify ${fontSizeClasses[fontSize]} text-text-primary font-serif`}>
-        {paragraph}
-      </p>
-    ));
+    return smartSplitParagraphs(text).map((paragraph, index) => {
+      const isIndianLang = selectedLang === 'hi' || selectedLang === 'mr';
+      return (
+        <p key={index} className={`mb-8 text-justify ${fontSizeClasses[fontSize]} text-text-primary font-serif`}>
+          {paragraph}
+        </p>
+      );
+    });
   };
 
   return (
     <article className="max-w-none">
+      {/* Language Switcher */}
+      <div className="flex justify-end mb-4 space-x-2">
+        {LANGUAGES.map((lang) => (
+          <button
+            key={lang.code}
+            onClick={() => handleLanguageChange(lang.code)}
+            className={`px-3 py-1 rounded border text-sm font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary
+              ${selectedLang === lang.code ? 'bg-primary text-white border-primary' : 'bg-white text-primary border-gray-300 hover:bg-gray-100'}`}
+            aria-pressed={selectedLang === lang.code}
+            aria-label={`Switch to ${lang.label}`}
+          >
+            {lang.label}
+          </button>
+        ))}
+      </div>
       {/* Reading Time and Font Controls */}
       <div className="flex items-center justify-between mb-8 p-4 bg-surface rounded-xl shadow">
         <div className="flex items-center space-x-2 text-sm text-text-secondary">
@@ -60,7 +133,7 @@ const ArticleContent = ({ content, readingTime, articleLink }) => {
           <span className="text-sm text-text-secondary mr-2">Font size:</span>
           <Button
             variant={fontSize === 'sm' ? 'primary' : 'ghost'}
-            onClick={() => adjustFontSize('sm')}
+            onClick={() => setFontSize('sm')}
             className="px-2 py-1 text-xs"
             aria-label="Small font size"
             title="Small font size"
@@ -69,7 +142,7 @@ const ArticleContent = ({ content, readingTime, articleLink }) => {
           </Button>
           <Button
             variant={fontSize === 'base' ? 'primary' : 'ghost'}
-            onClick={() => adjustFontSize('base')}
+            onClick={() => setFontSize('base')}
             className="px-2 py-1 text-sm"
             aria-label="Normal font size"
             title="Normal font size"
@@ -78,7 +151,7 @@ const ArticleContent = ({ content, readingTime, articleLink }) => {
           </Button>
           <Button
             variant={fontSize === 'lg' ? 'primary' : 'ghost'}
-            onClick={() => adjustFontSize('lg')}
+            onClick={() => setFontSize('lg')}
             className="px-2 py-1 text-base"
             aria-label="Large font size"
             title="Large font size"
@@ -87,7 +160,7 @@ const ArticleContent = ({ content, readingTime, articleLink }) => {
           </Button>
           <Button
             variant={fontSize === 'xl' ? 'primary' : 'ghost'}
-            onClick={() => adjustFontSize('xl')}
+            onClick={() => setFontSize('xl')}
             className="px-2 py-1 text-lg"
             aria-label="Extra large font size"
             title="Extra large font size"
@@ -98,8 +171,10 @@ const ArticleContent = ({ content, readingTime, articleLink }) => {
       </div>
 
       {/* Article Body */}
-      <div className="prose prose-slate max-w-none dark:prose-invert font-serif">
-        {formatContent(content)}
+      <div className="prose prose-lg max-w-none dark:prose-invert font-serif text-justify leading-relaxed">
+        {isTranslating
+          ? <span>Translating...</span>
+          : formatContent(translatedContent || content)}
       </div>
 
       {/* Divider */}
