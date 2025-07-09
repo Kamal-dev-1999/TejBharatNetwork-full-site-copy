@@ -88,8 +88,8 @@ const ContextualBreadcrumbs = () => {
   }
 
   return (
-    <nav className="flex items-center space-x-2 text-sm mb-6" aria-label="Breadcrumb">
-      <ol className="flex items-center space-x-2">
+    <nav className="flex items-center w-full text-sm mb-6" aria-label="Breadcrumb">
+      <ol className="flex items-center">
         {breadcrumbs.map((breadcrumb, index) => (
           <li key={breadcrumb.path} className="flex items-center">
             {index > 0 && (
@@ -110,7 +110,7 @@ const ContextualBreadcrumbs = () => {
                   />
                 )}
                 <span
-                  className="truncate max-w-[60px] sm:max-w-[120px] md:max-w-[180px] overflow-hidden text-ellipsis block"
+                  className="truncate max-w-[90px] sm:max-w-[120px] md:max-w-[180px] overflow-hidden text-ellipsis block"
                   title={breadcrumb.label}
                 >
                   {breadcrumb.label}
