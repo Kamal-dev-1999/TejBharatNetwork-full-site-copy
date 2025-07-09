@@ -8,8 +8,7 @@ const LANGUAGES = [
   { code: 'mr', label: 'मराठी' },
 ];
 
-const GOOGLE_API_KEY = 'AIzaSyCryOwktO78IPFMkfcK7iS_xaI_LgwFdsg';
-
+const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 async function googleTranslateText(text, targetLang) {
   if (!text || !targetLang) {
     console.error('Missing text or targetLang for translation');
