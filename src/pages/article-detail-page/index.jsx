@@ -120,8 +120,7 @@ const getSourceLogo = (sourceName) => {
   console.log(`No logo found for "${sourceName}", generating fallback with letter`);
   return generateFallbackLogo(sourceName);
 };
-
-const GOOGLE_API_KEY = 'AIzaSyCryOwktO78IPFMkfcK7iS_xaI_LgwFdsg';
+const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 async function googleTranslateText(text, targetLang) {
   if (!text || !targetLang) {
