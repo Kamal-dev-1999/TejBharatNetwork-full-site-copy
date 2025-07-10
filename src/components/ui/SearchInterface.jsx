@@ -14,12 +14,14 @@ const SearchInterface = () => {
   const containerRef = useRef(null);
 
   const mockSuggestions = [
-    { type: 'recent', text: 'climate change summit', category: 'Politics' },
-    { type: 'recent', text: 'tech earnings report', category: 'Business' },
-    { type: 'trending', text: 'artificial intelligence breakthrough', category: 'Technology' },
-    { type: 'trending', text: 'olympic games 2024', category: 'Sports' },
-    { type: 'suggestion', text: 'renewable energy policy', category: 'Science' },
-    { type: 'suggestion', text: 'cryptocurrency regulation', category: 'Business' },
+    { type: 'recent', text: 'mumbai local news', category: 'Mumbai' },
+    { type: 'recent', text: 'politics latest updates', category: 'Politics' },
+    { type: 'trending', text: 'national news headlines', category: 'National News' },
+    { type: 'trending', text: 'international news today', category: 'International News' },
+    { type: 'suggestion', text: 'mumbai monsoon updates', category: 'Mumbai' },
+    { type: 'suggestion', text: 'election results', category: 'Politics' },
+    { type: 'suggestion', text: 'parliament session highlights', category: 'National News' },
+    { type: 'suggestion', text: 'global summit', category: 'International News' },
   ];
 
   const handleInputChange = (e) => {
@@ -173,7 +175,8 @@ const SearchInterface = () => {
 
       {/* Search Suggestions Dropdown */}
       {isExpanded && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-news-lg z-dropdown max-h-80 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-news-lg z-dropdown max-h-80 overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
           {isLoading ? (
             <div className="p-4 flex items-center justify-center">
               <div className="flex items-center space-x-2 text-text-secondary">
