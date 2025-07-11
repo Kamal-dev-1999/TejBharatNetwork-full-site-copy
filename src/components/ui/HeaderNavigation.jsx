@@ -75,9 +75,9 @@ const HeaderNavigation = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsCategoryDropdownOpen(false);
-      }
+      // if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      //   setIsCategoryDropdownOpen(false);
+      // }
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
         setIsMobileMenuOpen(false);
       }
@@ -348,7 +348,7 @@ const HeaderNavigation = () => {
                         {isCategoryDropdownOpen && (
                           <>
                             {console.log('Rendering mobile category list')}
-                            <div className="mt-2 ml-4 space-y-1">
+                            <div className="mt-2 ml-4 space-y-1 max-h-60 overflow-y-auto sm:max-h-80">
                               {categories.map((category) => (
                                 <button
                                   type="button"
@@ -357,7 +357,8 @@ const HeaderNavigation = () => {
                                     isActiveRoute(category.path)
                                       ? 'text-red-600 bg-red-100' : 'text-text-secondary hover:text-red-600 hover:bg-red-50'
                                   }`}
-                                  onClick={() => {
+                                  onClick={(event) => {
+                                    event.stopPropagation();
                                     console.log("Navigating to:", category.path);
                                     navigate(category.path);
                                     setTimeout(() => {
