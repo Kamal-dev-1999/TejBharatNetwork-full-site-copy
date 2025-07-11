@@ -114,7 +114,10 @@ const ArticleContent = ({ content, readingTime, articleLink }) => {
             key={lang.code}
             onClick={() => handleLanguageChange(lang.code)}
             className={`px-3 py-1 rounded border text-sm font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary
-              ${selectedLang === lang.code ? 'bg-primary text-white border-primary' : 'bg-white text-primary border-gray-300 hover:bg-gray-100'}`}
+              ${selectedLang === lang.code
+                ? 'bg-primary text-white border-primary'
+                : 'bg-white text-primary border-gray-300 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-700'}
+            `}
             aria-pressed={selectedLang === lang.code}
             aria-label={`Switch to ${lang.label}`}
           >
