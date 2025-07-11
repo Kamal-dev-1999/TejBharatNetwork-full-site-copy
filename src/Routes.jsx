@@ -12,7 +12,6 @@ import UserSettings from "pages/user-settings";
 import NotFound from "pages/NotFound";
 import SignIn from "pages/user-settings/components/SignIn";
 import SignUp from "pages/user-settings/components/SignUp";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const Routes = () => {
   return (
@@ -30,6 +29,7 @@ const Routes = () => {
         <Route path="/user-settings" element={<UserSettings />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
+        
         <Route path="*" element={<NotFound />} />
       </RouterRoutes>
       </ErrorBoundary>

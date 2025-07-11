@@ -1,21 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../AppIcon';
 import Button from './Button';
 import SearchInterface from './SearchInterface';
 import ThemeToggle from './ThemeToggle';
-import { useAuth } from "../../contexts/AuthContext";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useAuth } from '../../contexts/AuthContext';
 
 const DEFAULT_USER_IMG = "/assets/images/default-user.png";
 
 const HeaderNavigation = () => {
+  const { currentUser } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const mobileMenuRef = useRef(null);
-  const { user, logout } = useAuth();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef(null);
 
@@ -23,7 +23,7 @@ const HeaderNavigation = () => {
     { label: 'Home', path: '/news-homepage', icon: 'Home' },
     { label: 'Categories', path: '/category-browse', icon: 'Grid3X3', hasDropdown: true },
     { label: 'Bookmarks', path: '/bookmarks-library', icon: 'Bookmark' },
-    { label: 'Settings', path: '/user-settings', icon: 'Settings' },
+    // Removed Settings from here
   ];
 
   const categories = [
@@ -63,6 +63,16 @@ const HeaderNavigation = () => {
     setIsCategoryDropdownOpen(false);
   };
 
+  const handleProfileClick = () => {
+    setIsProfileDropdownOpen((open) => !open);
+  };
+
+  const handleProfileMenu = (e) => {
+    e.preventDefault();
+    setIsProfileDropdownOpen(false);
+    navigate('/user-settings');
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -71,12 +81,16 @@ const HeaderNavigation = () => {
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
         setIsMobileMenuOpen(false);
       }
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setIsProfileDropdownOpen(false);
+      }
     };
 
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
         setIsCategoryDropdownOpen(false);
         setIsMobileMenuOpen(false);
+        setIsProfileDropdownOpen(false);
       }
     };
 
@@ -98,22 +112,6 @@ const HeaderNavigation = () => {
       document.body.style.overflow = 'unset';
     };
   }, [isMobileMenuOpen]);
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
-        setIsProfileDropdownOpen(false);
-      }
-    }
-    if (isProfileDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isProfileDropdownOpen]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-header bg-background border-b border-border safe-area-inset-top overflow-x-visible">
@@ -225,50 +223,47 @@ const HeaderNavigation = () => {
             <ThemeToggle />
 
             {/* User Info or Login/Sign Up Buttons */}
-            {user ? (
-              <div className="relative flex items-center space-x-2">
-                <button
-                  onClick={() => setIsProfileDropdownOpen((v) => !v)}
-                  className="focus:outline-none focus:ring-2 focus:ring-red-200 rounded-full"
-                  aria-label="User menu"
-                >
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt="Profile" className="w-8 h-8 rounded-full" />
-                  ) : (
-                    <img src={DEFAULT_USER_IMG} alt="Default Profile" className="w-8 h-8 rounded-full bg-gray-200" />
-                  )}
-                </button>
-                {isProfileDropdownOpen && (
-                  <div ref={profileDropdownRef} className="absolute right-0 mt-2 w-56 z-50">
-                    {/* Caret */}
-                    <div className="flex justify-end pr-6">
-                      <div className="w-3 h-3 bg-white border-t border-l border-border rotate-45 -mb-1"></div>
-                    </div>
-                    <div className="bg-white border border-border rounded-xl shadow-xl py-2 animate-dropdown-fade-in transform transition-transform duration-200 origin-top-right hover:scale-105">
-                      <div className="px-4 py-2 text-sm text-primary font-semibold truncate">
-                        {user.displayName || user.email}
-                      </div>
-                      <div className="border-t border-border my-2"></div>
+            <div className="relative flex items-center space-x-2">
+              {!currentUser ? (
+                <>
+                  <Link to="/signin" className="btn btn-outline text-sm font-medium px-4 py-2 rounded-md border border-red-600 text-red-600 hover:bg-red-50 transition-colors duration-200 hidden lg:inline-block">
+                    Login
+                  </Link>
+                  <Link to="/signup" className="btn btn-primary text-sm font-medium px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors duration-200 hidden lg:inline-block">
+                    Sign Up
+                  </Link>
+                </>
+              ) : (
+                <div className="relative" ref={profileDropdownRef}>
+                  <button
+                    className="flex items-center space-x-2 px-2 py-1 rounded-full border border-border hover:bg-surface transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent"
+                    onClick={handleProfileClick}
+                  >
+                    <img
+                      src={currentUser.photoURL || DEFAULT_USER_IMG}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <span className="hidden md:inline text-sm font-medium text-primary">
+                      {currentUser.displayName || currentUser.email || 'Account'}
+                    </span>
+                    <Icon name="ChevronDown" size={16} />
+                  </button>
+                  {isProfileDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg z-50">
                       <button
-                        onClick={() => { setIsProfileDropdownOpen(false); logout(); }}
-                        className="w-full text-left px-4 py-2 text-red-600 rounded-b-lg hover:bg-red-50 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-700 active:bg-red-700 active:text-white transition-all duration-200 text-sm font-medium"
+                        className="w-full text-left px-4 py-3 text-sm text-primary hover:bg-surface rounded-t-lg"
+                        onClick={handleProfileMenu}
                       >
-                        Logout
+                        <Icon name="User" size={16} className="mr-2 inline-block" />
+                        Profile & Settings
                       </button>
+                      {/* You can add more dropdown items here if needed */}
                     </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <>
-                <Link to="/signin" className="btn btn-outline text-sm font-medium px-4 py-2 rounded-md border border-red-600 text-red-600 hover:bg-red-50 transition-colors duration-200 hidden lg:inline-block">
-                  Login
-                </Link>
-                <Link to="/signup" className="btn btn-primary text-sm font-medium px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors duration-200 hidden lg:inline-block">
-                  Sign Up
-                </Link>
-              </>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Mobile Menu Button */}
             <Button
@@ -301,6 +296,26 @@ const HeaderNavigation = () => {
               <div className="flex justify-center">
                 <ThemeToggle />
               </div>
+
+              {/* Mobile User Info */}
+              {currentUser && (
+                <div className="flex items-center space-x-3 mb-4">
+                  <img
+                    src={currentUser.photoURL || DEFAULT_USER_IMG}
+                    alt="Profile"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div>
+                    <div className="font-medium text-primary">{currentUser.displayName || currentUser.email || 'Account'}</div>
+                    <button
+                      className="text-xs text-accent underline mt-1"
+                      onClick={() => { setIsMobileMenuOpen(false); navigate('/user-settings'); }}
+                    >
+                      Profile & Settings
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Mobile Navigation */}
               <nav className="space-y-2">
@@ -366,44 +381,8 @@ const HeaderNavigation = () => {
                 ))}
               </nav>
 
-              {/* Mobile User Info or Login/Sign Up Buttons */}
-              {user ? (
-                <div className="flex flex-col items-center space-y-2 pt-4">
-                  <div className="relative flex items-center space-x-2">
-                    <button
-                      onClick={() => setIsProfileDropdownOpen((v) => !v)}
-                      className="focus:outline-none focus:ring-2 focus:ring-red-200 rounded-full"
-                      aria-label="User menu"
-                    >
-                      {user.photoURL ? (
-                        <img src={user.photoURL} alt="Profile" className="w-12 h-12 rounded-full" />
-                      ) : (
-                        <img src={DEFAULT_USER_IMG} alt="Default Profile" className="w-12 h-12 rounded-full bg-gray-200" />
-                      )}
-                    </button>
-                    {isProfileDropdownOpen && (
-                      <div ref={profileDropdownRef} className="absolute right-0 mt-2 w-56 z-50">
-                        {/* Caret */}
-                        <div className="flex justify-end pr-6">
-                          <div className="w-3 h-3 bg-white border-t border-l border-border rotate-45 -mb-1"></div>
-                        </div>
-                        <div className="bg-white border border-border rounded-xl shadow-xl py-2 animate-dropdown-fade-in transform transition-transform duration-200 origin-top-right hover:scale-105">
-                          <div className="px-4 py-2 text-sm text-primary font-semibold truncate">
-                            {user.displayName || user.email}
-                          </div>
-                          <div className="border-t border-border my-2"></div>
-                          <button
-                            onClick={() => { setIsProfileDropdownOpen(false); logout(); }}
-                            className="w-full text-left px-4 py-2 text-red-600 rounded-b-lg hover:bg-red-50 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-700 active:bg-red-700 active:text-white transition-all duration-200 text-sm font-medium"
-                          >
-                            Logout
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
+              {/* Mobile Login/Sign Up Buttons */}
+              {!currentUser && (
                 <div className="flex flex-col space-y-3 pt-4">
                   <Link to="/signin" className="btn btn-outline text-base font-medium px-4 py-2 rounded-md border border-red-600 text-red-600 hover:bg-red-50 transition-colors duration-200 w-full text-center">
                     Login

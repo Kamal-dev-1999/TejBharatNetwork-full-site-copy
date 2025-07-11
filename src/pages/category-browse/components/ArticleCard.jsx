@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
+import { useAuth } from '../../../contexts/AuthContext';
+import Icon from '../../../components/AppIcon';
 
 // Source-specific color mapping for better visual distinction
 const SOURCE_COLORS = {
@@ -83,17 +85,34 @@ const getSourceLogo = (sourceName) => {
   return generateSourceLogo(sourceName);
 };
 
-const ArticleCard = ({ article, onBookmark, onShare }) => {
-  const handleBookmark = (e) => {
+const ArticleCard = ({ article }) => {
+  const { currentUser, toggleBookmark, isBookmarked } = useAuth();
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
+  const [showLoginWarning, setShowLoginWarning] = useState(false);
+
+  const handleBookmarkClick = useCallback(async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    onBookmark(article.id);
-  };
+    if (!currentUser) {
+      setShowLoginWarning(true);
+      setTimeout(() => setShowLoginWarning(false), 2000);
+      return;
+    }
+    if (isBookmarkLoading) return;
+    setIsBookmarkLoading(true);
+    try {
+      await toggleBookmark(article.id);
+    } catch (error) {
+      console.error('Bookmark toggle failed:', error);
+    } finally {
+      setIsBookmarkLoading(false);
+    }
+  }, [currentUser, toggleBookmark, article.id, isBookmarkLoading]);
 
   const handleShare = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    onShare(article);
+    // onShare(article); // This prop is removed, so this line is removed.
   };
 
   const getTimeAgo = (date) => {
@@ -133,11 +152,21 @@ const ArticleCard = ({ article, onBookmark, onShare }) => {
           <div className="absolute top-3 right-3 flex space-x-1">
             <Button
               variant="ghost"
-              onClick={handleBookmark}
+              onClick={handleBookmarkClick}
               className="w-8 h-8 bg-surface/90 dark:bg-neutral-800/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-surface dark:hover:bg-neutral-700 transition-colors duration-200 touch-target border border-border dark:border-border focus:ring-2 focus:ring-accent dark:focus:ring-accent-dark"
-              iconName={article.isBookmarked ? "BookmarkCheck" : "Bookmark"}
+              iconName={undefined}
               iconSize={14}
-            />
+            >
+              {isBookmarkLoading ? (
+                <Icon name="Loader2" size={16} className="animate-spin text-text-secondary" />
+              ) : (
+                <Icon
+                  name={isBookmarked(article.id) ? "Bookmark" : "BookmarkPlus"}
+                  size={16}
+                  className={isBookmarked(article.id) ? "text-accent fill-current" : "text-text-secondary"}
+                />
+              )}
+            </Button>
             <Button
               variant="ghost"
               onClick={handleShare}
@@ -180,6 +209,9 @@ const ArticleCard = ({ article, onBookmark, onShare }) => {
               {article.source}
             </span>
           </div>
+          {showLoginWarning && (
+            <div className="text-xs text-red-600 mt-2">Please login to bookmark</div>
+          )}
         </div>
       </Link>
     </article>

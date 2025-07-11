@@ -4,16 +4,13 @@ import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
 
-const BookmarkCard = ({ bookmark, onRemove, onToggleRead, onShare, isSelected, onSelect }) => {
+const BookmarkCard = ({ bookmark, onRemove, onOpen, isSelected, onSelect }) => {
   const [isRemoving, setIsRemoving] = useState(false);
-  const [isTogglingRead, setIsTogglingRead] = useState(false);
 
   const handleRemove = useCallback(async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
     if (isRemoving) return;
-    
     setIsRemoving(true);
     try {
       await onRemove?.(bookmark?.id);
@@ -24,33 +21,6 @@ const BookmarkCard = ({ bookmark, onRemove, onToggleRead, onShare, isSelected, o
     }
   }, [isRemoving, onRemove, bookmark?.id]);
 
-  const handleToggleRead = useCallback(async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (isTogglingRead) return;
-    
-    setIsTogglingRead(true);
-    try {
-      await onToggleRead?.(bookmark?.id);
-    } catch (error) {
-      console.error('Toggle read status failed:', error);
-    } finally {
-      setIsTogglingRead(false);
-    }
-  }, [isTogglingRead, onToggleRead, bookmark?.id]);
-
-  const handleShare = useCallback(async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      await onShare?.(bookmark);
-    } catch (error) {
-      console.error('Share bookmark failed:', error);
-    }
-  }, [onShare, bookmark]);
-
   const handleSelect = useCallback((e) => {
     if (onSelect) {
       onSelect(bookmark?.id, e.target.checked);
@@ -58,11 +28,14 @@ const BookmarkCard = ({ bookmark, onRemove, onToggleRead, onShare, isSelected, o
   }, [onSelect, bookmark?.id]);
 
   const formatDate = (date) => {
+    if (!date) return "Unknown";
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "Unknown";
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
-    }).format(new Date(date));
+    }).format(d);
   };
 
   const getReadingTime = (content) => {
@@ -159,12 +132,6 @@ const BookmarkCard = ({ bookmark, onRemove, onToggleRead, onShare, isSelected, o
                 <Icon name="Clock" size={12} />
                 <span>{getReadingTime(bookmark.content)} min read</span>
               </div>
-              {bookmark.isRead && (
-                <div className="flex items-center space-x-1 text-success">
-                  <Icon name="CheckCircle" size={12} />
-                  <span>Read</span>
-                </div>
-              )}
             </div>
           </div>
 
@@ -193,37 +160,15 @@ const BookmarkCard = ({ bookmark, onRemove, onToggleRead, onShare, isSelected, o
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
         <div className="flex items-center space-x-2">
           <Button
-            variant="ghost"
-            onClick={handleToggleRead}
-            disabled={isTogglingRead}
+            variant="danger"
+            onClick={handleRemove}
+            disabled={isRemoving}
             className="text-xs px-2 py-1"
-            iconName={isTogglingRead ? "Loader2" : (bookmark.isRead ? "Eye" : "EyeOff")}
-            iconSize={14}
+            iconName={isRemoving ? "Loader2" : "Trash2"}
           >
-            {isTogglingRead ? 'Loading...' : (bookmark.isRead ? 'Mark Unread' : 'Mark Read')}
-          </Button>
-          
-          <Button
-            variant="ghost"
-            onClick={handleShare}
-            className="text-xs px-2 py-1"
-            iconName="Share2"
-            iconSize={14}
-          >
-            Share
+            {isRemoving ? 'Removing...' : 'Remove'}
           </Button>
         </div>
-
-        <Button
-          variant="ghost"
-          onClick={handleRemove}
-          disabled={isRemoving}
-          className="text-xs px-2 py-1 text-error hover:text-error hover:bg-error/10"
-          iconName={isRemoving ? "Loader2" : "Trash2"}
-          iconSize={14}
-        >
-          {isRemoving ? 'Removing...' : 'Remove'}
-        </Button>
       </div>
     </div>
   );

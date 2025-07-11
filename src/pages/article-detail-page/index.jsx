@@ -11,6 +11,7 @@ import LoadingState from './components/LoadingState';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
 import { API_ENDPOINTS } from '../../config/api';
+import { useAuth } from "../../contexts/AuthContext";
 
 // Source logo mapping with real logos
 const SOURCE_LOGOS = {
@@ -163,8 +164,9 @@ const ArticleDetailPage = () => {
   const navigate = useNavigate();
   const [article, setArticle] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [error, setError] = useState(null);
+  const [showLoginWarning, setShowLoginWarning] = useState(false);
+  const { currentUser, toggleBookmark, isBookmarked } = useAuth();
 
   const articleId = searchParams.get('id');
   const articleTitle = searchParams.get('title');
@@ -225,10 +227,6 @@ const ArticleDetailPage = () => {
         console.log('Transformed article:', transformedArticle);
         setArticle(transformedArticle);
         
-        // Check if article is bookmarked (simulate from localStorage)
-        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedArticles') || '[]');
-        setIsBookmarked(bookmarks.includes(articleId));
-        
       } catch (err) {
         console.error('Failed to load article:', err);
         setError(err.message || "Failed to load article");
@@ -245,18 +243,13 @@ const ArticleDetailPage = () => {
     }
   }, [articleId]);
 
-  const handleBookmark = () => {
-    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedArticles') || '[]');
-    
-    if (isBookmarked) {
-      const updatedBookmarks = bookmarks.filter(id => id !== articleId);
-      localStorage.setItem('bookmarkedArticles', JSON.stringify(updatedBookmarks));
-      setIsBookmarked(false);
-    } else {
-      const updatedBookmarks = [...bookmarks, articleId];
-      localStorage.setItem('bookmarkedArticles', JSON.stringify(updatedBookmarks));
-      setIsBookmarked(true);
+  const handleBookmark = async () => {
+    if (!currentUser) {
+      setShowLoginWarning(true);
+      setTimeout(() => setShowLoginWarning(false), 2000);
+      return;
     }
+    await toggleBookmark(articleId);
   };
 
   const handleShare = (platform, article) => {
@@ -364,9 +357,11 @@ const ArticleDetailPage = () => {
               <ArticleHeader
                 article={article}
                 onBookmark={handleBookmark}
-                isBookmarked={isBookmarked}
+                isBookmarked={isBookmarked(articleId)}
               />
-              
+              {showLoginWarning && (
+                <div className="text-sm text-red-600 mt-2 mb-2">Please login to bookmark</div>
+              )}
               <ArticleContent
                 content={article.content}
                 readingTime={article.readingTime}
@@ -391,7 +386,7 @@ const ArticleDetailPage = () => {
         article={article}
         onShare={handleShare}
         onBookmark={handleBookmark}
-        isBookmarked={isBookmarked}
+        isBookmarked={isBookmarked(articleId)}
       />
     </div>
   );

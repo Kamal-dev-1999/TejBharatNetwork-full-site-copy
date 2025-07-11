@@ -1,19 +1,21 @@
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth }         from "firebase/auth";
+import { getFirestore }    from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAwG-LgtZiuH9KweUVQ4r5cNwHDYRkajHQ",
-  authDomain: "shivam-acdb8.firebaseapp.com",
-  projectId: "shivam-acdb8",
-  storageBucket: "shivam-acdb8.firebasestorage.app",
-  messagingSenderId: "24560763815",
-  appId: "1:24560763815:web:46ed3b86f846d2234c2c82",
-  measurementId: "G-XFHWDKY1FW"
+  apiKey: "AIzaSyBKldmxK2WpTC72mgQtMDVuBJpdB_DT0EI",
+  authDomain: "tezbharatnetwork.firebaseapp.com",
+  projectId: "tezbharatnetwork",
+  storageBucket: "tezbharatnetwork.firebasestorage.app",
+  messagingSenderId: "333895426917",
+  appId: "1:333895426917:web:3be17766967f1eba2b378c",
+  measurementId: "G-H0D9Q04B29"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const analytics = getAnalytics(app);
-export default app;
+export const db   = getFirestore(app);
+const analytics = getAnalytics(app);
