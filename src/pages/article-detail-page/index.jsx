@@ -5,7 +5,7 @@ import ContextualBreadcrumbs from '../../components/ui/ContextualBreadcrumbs';
 import ArticleHeader from './components/ArticleHeader';
 import ArticleContent from './components/ArticleContent';
 import FloatingToolbar from './components/FloatingToolbar';
-// import RelatedArticles from './components/RelatedArticles';
+import RelatedArticles from './components/RelatedArticles';
 // import TrendingTopics from './components/TrendingTopics';
 import LoadingState from './components/LoadingState';
 import Button from '../../components/ui/Button';
@@ -375,14 +375,13 @@ const ArticleDetailPage = () => {
             </div>
 
             {/* Sidebar */}
-            {/* <div className="space-y-6">
+            <div className="space-y-6">
               <RelatedArticles
-                articles={mockArticles}
+                category={article.category}
                 currentArticleId={article.id}
               />
-              
-              <TrendingTopics />
-            </div> */}
+              {/* TrendingTopics can be added here if needed */}
+            </div>
           </div>
         </div>
       </main>
