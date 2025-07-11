@@ -9,11 +9,12 @@ import RefreshIndicator from './components/RefreshIndicator';
 import LoadMoreButton from './components/LoadMoreButton';
 import Footer from './components/Footer';
 import { API_ENDPOINTS } from '../../config/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 // Source-specific color mapping for better visual distinction
 const SOURCE_COLORS = {
-  'Times of India': '#1E40AF', // Blue
-  'Hindustan Times': '#DC2626', // Red
+    'Times of India': '#1E40AF', // Blue
+    'Hindustan Times': '#DC2626', // Red
   'The Hindu': '#059669', // Green
   'Indian Express': '#7C3AED', // Purple
   'Economic Times': '#D97706', // Orange
@@ -98,7 +99,8 @@ const NewsHomepage = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
-  const [bookmarkCount, setBookmarkCount] = useState(0);
+  const [showLoginWarning, setShowLoginWarning] = useState(false);
+  const { currentUser, toggleBookmark, isBookmarked } = useAuth();
 
   // Fetch articles from backend
   const fetchArticles = useCallback(async (pageNum = 1, isLoadMore = false) => {
@@ -107,34 +109,23 @@ const NewsHomepage = () => {
     } else {
       setIsLoading(true);
     }
-    
     try {
-      // Use grouped API to ensure all categories including Politics are included
       const response = await fetch(API_ENDPOINTS.GROUPED_ARTICLES);
       const groupedData = await response.json();
-      
-      // Flatten all articles from different categories
       let allArticles = [];
       Object.values(groupedData).forEach(categoryArticles => {
         if (Array.isArray(categoryArticles)) {
           allArticles = [...allArticles, ...categoryArticles];
         }
       });
-      
-      // Sort by fetched_at date (most recent first)
       allArticles.sort((a, b) => new Date(b.fetched_at) - new Date(a.fetched_at));
-      
-      // Apply pagination
       const startIndex = (pageNum - 1) * 20;
       const endIndex = startIndex + 20;
       const paginatedArticles = allArticles.slice(startIndex, endIndex);
-      
-      // Map backend fields to frontend props
       const mapped = paginatedArticles.map((a, idx) => {
         const sourceLogo = getSourceLogo(a.source);
-        console.log(`NewsHomepage Article ${idx}: Source="${a.source}", Category="${a.category}", Logo="${sourceLogo.substring(0, 50)}..."`);
         return {
-          id: a._id, // Always use MongoDB ObjectId, don't fallback to index
+          id: a._id,
           title: a.title,
           summary: a.summary,
           excerpt: a.summary,
@@ -143,7 +134,7 @@ const NewsHomepage = () => {
           category: a.category,
           publishedAt: a.published_dt ? new Date(a.published_dt).toLocaleString() : '',
           readTime: a.full_text ? Math.max(1, Math.round((a.full_text || '').split(' ').length / 200)) + ' min read' : '',
-          isBookmarked: false,
+          isBookmarked: isBookmarked ? isBookmarked(a._id) : false,
           link: a.link,
           author: {
             avatar: sourceLogo,
@@ -151,14 +142,10 @@ const NewsHomepage = () => {
           }
         };
       });
-      
       if (isLoadMore) {
-        // Append new articles to existing ones
         setArticles(prev => [...prev, ...mapped]);
-        // Check if there are more articles
         setHasMore(endIndex < allArticles.length);
       } else {
-        // Set initial articles
         setFeaturedArticle(mapped[0] || null);
         setArticles(mapped);
         setHasMore(endIndex < allArticles.length);
@@ -166,18 +153,15 @@ const NewsHomepage = () => {
     } catch (error) {
       console.error('Failed to fetch articles:', error);
     }
-    
     if (isLoadMore) {
       setIsLoadingMore(false);
     } else {
       setIsLoading(false);
     }
-  }, []);
+  }, [isBookmarked]);
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
-    
-    // Reset to page 1 and fetch fresh articles
     setPage(1);
     await fetchArticles(1, false);
     setHasMore(true);
@@ -186,36 +170,26 @@ const NewsHomepage = () => {
 
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !hasMore) return;
-    
     const nextPage = page + 1;
     setPage(nextPage);
     await fetchArticles(nextPage, true);
   }, [page, isLoadingMore, hasMore, fetchArticles]);
 
-  const handleBookmarkToggle = useCallback((articleId, isBookmarked) => {
-    setArticles(prev => 
-      prev.map(article => 
-        article.id === articleId 
-          ? { ...article, isBookmarked }
-          : article
-      )
-    );
-    
-    if (featuredArticle && featuredArticle.id === articleId) {
-      setFeaturedArticle(prev => ({ ...prev, isBookmarked }));
+  const handleBookmark = async (articleId) => {
+    if (!currentUser) {
+      setShowLoginWarning(true);
+      setTimeout(() => setShowLoginWarning(false), 2000);
+      return;
     }
-    
-    setBookmarkCount(prev => isBookmarked ? prev + 1 : prev - 1);
-  }, [featuredArticle]);
+    await toggleBookmark(articleId);
+  };
 
   useEffect(() => {
     fetchArticles(1, false);
-    // Refresh every 2 hours
     const interval = setInterval(() => fetchArticles(1, false), 2 * 60 * 60 * 1000);
     return () => clearInterval(interval);
   }, [fetchArticles]);
 
-  // Auto-slide featuredArticle every 5 seconds
   useEffect(() => {
     if (!articles.length) return;
     const interval = setInterval(() => {
@@ -231,43 +205,34 @@ const NewsHomepage = () => {
   return (
     <div className="min-h-screen bg-surface">
       <HeaderNavigation />
-      
       <main className="pt-16">
         <RefreshIndicator 
           onRefresh={handleRefresh} 
           isRefreshing={isRefreshing} 
         />
-        
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <ContextualBreadcrumbs />
-          
-          {/* Latest News Headline */}
+          {showLoginWarning && (
+            <div className="text-sm text-red-600 mb-4">Please login to bookmark</div>
+          )}
           <h2 className="text-2xl md:text-3xl font-bold text-primary mb-4">Latest News</h2>
-          
-          {/* Hero Section */}
           <section className="mb-8">
             <HeroSection featuredArticle={featuredArticle} />
           </section>
-          
-          {/* Category Navigation */}
           <section className="mb-8">
             <CategoryChips />
           </section>
-          
-          {/* Articles Grid */}
           <section>
             <div className="flex items-center justify-between mb-6">
               <span className="text-sm text-text-secondary">
                 {articles.length} articles
               </span>
             </div>
-            
             <ArticleGrid
               articles={articles}
               isLoading={isLoading}
-              onBookmarkToggle={handleBookmarkToggle}
+              onBookmark={handleBookmark}
             />
-            
             {!isLoading && (
               <LoadMoreButton
                 onLoadMore={handleLoadMore}
@@ -277,10 +242,8 @@ const NewsHomepage = () => {
             )}
           </section>
         </div>
-        
-        <FloatingActionButton bookmarkCount={bookmarkCount} />
+        <FloatingActionButton bookmarkCount={0} />
       </main>
-      
       <Footer />
     </div>
   );

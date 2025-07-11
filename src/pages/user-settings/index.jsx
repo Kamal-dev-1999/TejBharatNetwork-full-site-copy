@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import HeaderNavigation from '../../components/ui/HeaderNavigation';
 import ContextualBreadcrumbs from '../../components/ui/ContextualBreadcrumbs';
-import LocalizationSettings from './components/LocalizationSettings';
+
+import UserProfile from './components/userProfile';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
 import { useLocation } from "react-router-dom";
-import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
@@ -17,47 +17,10 @@ const UserSettings = () => {
       layoutDensity: 'comfortable',
       showArticlePreview: true,
       imageQuality: 'high'
-    },
-    notifications: {
-      breakingNews: true,
-      dailyDigest: true,
-      categoryUpdates: false,
-      bookmarkReminders: true,
-      deliveryTime: 'immediate',
-      subscribedCategories: ['Technology', 'Politics', 'Business'],
-      quietHours: {
-        enabled: true,
-        startTime: '22:00',
-        endTime: '08:00'
-      }
-    },
-    privacy: {
-      analytics: true,
-      personalization: true,
-      locationData: false,
-      socialSharing: true,
-      cookies: {
-        essential: true,
-        analytics: true,
-        marketing: false,
-        preferences: true
-      },
-      dataRetention: '1year'
-    },
-    account: {
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      bio: 'News enthusiast and technology professional',
-      subscription: 'free'
-    },
-    localization: {
-      language: 'en',
-      timezone: 'UTC-5',
-      dateFormat: 'MM/DD/YYYY',
-      timeFormat: '12h',
-      region: 'us',
-      showLocalNews: true
     }
+    
+    
+    
   });
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -65,23 +28,8 @@ const UserSettings = () => {
   const [isAutoSaving, setIsAutoSaving] = useState(false);
 
   const location = useLocation();
-  const { user } = useAuth();
   const { theme, setThemeMode } = useTheme();
   const { t } = useTranslation();
-
-  useEffect(() => {
-    if (user) {
-      setSettings(prev => ({
-        ...prev,
-        account: {
-          ...prev.account,
-          name: user.displayName || '',
-          email: user.email || '',
-          // Add more fields as needed
-        }
-      }));
-    }
-  }, [user]);
 
   // Update theme when component mounts
   useEffect(() => {
@@ -115,60 +63,7 @@ const UserSettings = () => {
     }, 1000);
   };
 
-  const handleResetSettings = () => {
-    if (window.confirm('Are you sure you want to reset all settings to default values? This action cannot be undone.')) {
-      setSettings({
-        display: {
-          theme: theme, // Keep current theme when resetting
-          fontSize: 'medium',
-          layoutDensity: 'comfortable',
-          showArticlePreview: true,
-          imageQuality: 'high'
-        },
-        notifications: {
-          breakingNews: true,
-          dailyDigest: true,
-          categoryUpdates: false,
-          bookmarkReminders: true,
-          deliveryTime: 'immediate',
-          subscribedCategories: [],
-          quietHours: {
-            enabled: false,
-            startTime: '22:00',
-            endTime: '08:00'
-          }
-        },
-        privacy: {
-          analytics: false,
-          personalization: false,
-          locationData: false,
-          socialSharing: false,
-          cookies: {
-            essential: true,
-            analytics: false,
-            marketing: false,
-            preferences: false
-          },
-          dataRetention: '30days'
-        },
-        account: {
-          name: '',
-          email: '',
-          bio: '',
-          subscription: 'free'
-        },
-        localization: {
-          language: 'en',
-          timezone: 'UTC+0',
-          dateFormat: 'MM/DD/YYYY',
-          timeFormat: '12h',
-          region: 'us',
-          showLocalNews: false
-        }
-      });
-      setHasUnsavedChanges(true);
-    }
-  };
+ 
 
   // Auto-save functionality
   useEffect(() => {
@@ -215,35 +110,11 @@ const UserSettings = () => {
           </div>
 
           {/* User Profile Section */}
-          <div className="bg-background border border-border rounded-lg p-6 mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center text-white text-2xl font-bold">
-                {user?.displayName ? user.displayName.charAt(0).toUpperCase() : t('user', 'U')}
-              </div>
-              <div>
-                <div className="text-xl font-semibold text-primary">{user?.displayName || t('user')}</div>
-                <div className="text-sm text-text-secondary">{user?.email || t('email')}</div>
-              </div>
-            </div>
-            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
-              <Button variant="outline" iconName="Lock" onClick={() => alert('Update password functionality coming soon!')}>
-                {t('update_password')}
-              </Button>
-              <Button variant="outline" iconName="RefreshCcw" onClick={() => alert('Reset password functionality coming soon!')}>
-                {t('reset_password')}
-              </Button>
-              <Button variant="outline" iconName="User" onClick={() => alert('Edit profile functionality coming soon!')}>
-                {t('edit_profile')}
-              </Button>
-            </div>
-          </div>
+          <UserProfile />
 
           {/* Settings Sections */}
           <div className="space-y-6">
-            <LocalizationSettings 
-              settings={settings} 
-              onSettingsChange={handleSettingsChange} 
-            />
+
 
             {/* Theme Section */}
             <div>

@@ -10,6 +10,7 @@ import LoadMoreButton from './components/LoadMoreButton';
 import PullToRefresh from './components/PullToRefresh';
 import Icon from '../../components/AppIcon';
 import { API_ENDPOINTS } from '../../config/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const CATEGORIES = [
   "Breaking News", "Politics", "Mumbai", "National News", "International News",
@@ -21,9 +22,6 @@ const CategoryBrowse = () => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const category = searchParams.get('category');
-  console.log('🔍 Raw category from URL:', category);
-  console.log('🔍 Full URL:', location.pathname + location.search);
-  
   const [activeSubcategory, setActiveSubcategory] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
   const [articles, setArticles] = useState([]);
@@ -33,6 +31,8 @@ const CategoryBrowse = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [groupedArticles, setGroupedArticles] = useState({});
+  const [showLoginWarning, setShowLoginWarning] = useState(false);
+  const { currentUser, toggleBookmark, isBookmarked } = useAuth();
 
   const showAllCategories = !searchParams.get('category');
 
@@ -43,17 +43,11 @@ const CategoryBrowse = () => {
       let url;
       if (category) {
         url = `${API_ENDPOINTS.CATEGORY_ARTICLES(category)}?page=${nextPage}&limit=10`;
-        console.log('🔍 Fetching category articles:', { category, url });
       } else {
         url = `${API_ENDPOINTS.LATEST_ARTICLES}?page=${nextPage}&limit=10`;
       }
       const response = await fetch(url);
-      console.log('🔍 Response status:', response.status);
       const data = await response.json();
-      console.log('🔍 Response data:', data);
-      if (!response.ok) {
-        console.error('🔍 Error response:', data);
-      }
       const mapped = (data.articles || []).map((a, idx) => ({
         id: a._id || idx,
         title: a.title || '',
@@ -76,7 +70,7 @@ const CategoryBrowse = () => {
         readTime: a.full_text
           ? Math.max(1, Math.round((a.full_text || '').split(' ').length / 200)) + ' min read'
           : '1 min read',
-        isBookmarked: false,
+        isBookmarked: isBookmarked ? isBookmarked(a._id || idx) : false,
         link: a.link || '',
         author: {
           avatar: 'https://randomuser.me/api/portraits/lego/1.jpg',
@@ -97,7 +91,7 @@ const CategoryBrowse = () => {
   useEffect(() => {
     fetchArticles(true, 1);
     fetchGroupedArticles();
-  }, [category, activeSubcategory, sortBy]);
+  }, [category, activeSubcategory, sortBy, isBookmarked]);
 
   const fetchGroupedArticles = async () => {
     setIsLoading(true);
@@ -121,12 +115,14 @@ const CategoryBrowse = () => {
     }
   };
 
-  const handleBookmark = (articleId) => {
-    setArticles(prev => prev.map(article => 
-      article.id === articleId 
-        ? { ...article, isBookmarked: !article.isBookmarked }
-        : article
-    ));
+  const handleBookmark = async (articleId) => {
+    if (!currentUser) {
+      setShowLoginWarning(true);
+      setTimeout(() => setShowLoginWarning(false), 2000);
+      return;
+    }
+    await toggleBookmark(articleId);
+    // Optionally, you can refetch or update articles state here if needed
   };
 
   const handleShare = (article) => {
@@ -137,11 +133,9 @@ const CategoryBrowse = () => {
         url: window.location.origin + `/article-detail-page?id=${article.id}`
       });
     } else {
-      // Fallback for browsers without Web Share API
       navigator.clipboard.writeText(
         window.location.origin + `/article-detail-page?id=${article.id}`
       );
-      // You could show a toast notification here
     }
   };
 
@@ -173,15 +167,14 @@ const CategoryBrowse = () => {
   return (
     <div className="min-h-screen bg-background">
       <HeaderNavigation />
-      
       <PullToRefresh onRefresh={handleRefresh}>
         <main className="pt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Breadcrumbs */}
             <ContextualBreadcrumbs />
-
+            {showLoginWarning && (
+              <div className="text-sm text-red-600 mb-4">Please login to bookmark</div>
+            )}
             {showAllCategories ? (
-              // Show grouped articles for all categories
               CATEGORIES.filter(category => (groupedArticles[category] && groupedArticles[category].length > 0)).map(category => (
                 <div key={category}>
                   <h2 className="text-2xl font-bold my-4">{category}</h2>
@@ -208,7 +201,7 @@ const CategoryBrowse = () => {
                       readTime: a.full_text
                         ? Math.max(1, Math.round((a.full_text || '').split(' ').length / 200)) + ' min read'
                         : '1 min read',
-                      isBookmarked: false,
+                      isBookmarked: isBookmarked ? isBookmarked(a._id || idx) : false,
                       link: a.link || '',
                       author: {
                         avatar: 'https://randomuser.me/api/portraits/lego/1.jpg',
@@ -216,15 +209,13 @@ const CategoryBrowse = () => {
                       }
                     }))}
                     isLoading={isLoading}
-                    onBookmark={() => {}}
-                    onShare={() => {}}
+                    onBookmark={handleBookmark}
+                    onShare={handleShare}
                   />
                 </div>
               ))
             ) : (
-              // Show single category view (original logic)
               <>
-                {/* Category Header */}
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center">
@@ -239,42 +230,30 @@ const CategoryBrowse = () => {
                       </p>
                     </div>
                   </div>
-
-                  {/* Sort Dropdown */}
                   <div className="hidden sm:block">
                     <SortDropdown sortBy={sortBy} onSortChange={handleSortChange} />
                   </div>
                 </div>
-
-                {/* Featured Article Banner */}
                 {featuredArticle && !isLoading && (
                   <CategoryBanner 
                     featuredArticle={featuredArticle} 
                     category={getCategoryDisplayName()} 
                   />
                 )}
-
-                {/* Subcategory Tabs */}
                 <SubcategoryTabs
                   category={category}
                   activeSubcategory={activeSubcategory}
                   onSubcategoryChange={handleSubcategoryChange}
                 />
-
-                {/* Mobile Sort */}
                 <div className="sm:hidden mb-6">
                   <SortDropdown sortBy={sortBy} onSortChange={handleSortChange} />
                 </div>
-
-                {/* Articles Grid */}
                 <ArticleGrid
                   articles={articles}
                   isLoading={isLoading}
                   onBookmark={handleBookmark}
                   onShare={handleShare}
                 />
-
-                {/* Load More */}
                 {!isLoading && hasMore && (
                   <LoadMoreButton
                     onLoadMore={handleLoadMore}
