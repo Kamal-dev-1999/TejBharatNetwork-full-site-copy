@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
 import { useAuth } from '../../../contexts/AuthContext';
 import Icon from '../../../components/AppIcon';
+import { createPortal } from 'react-dom';
 
 // Source-specific color mapping for better visual distinction
 const SOURCE_COLORS = {
@@ -85,10 +86,62 @@ const getSourceLogo = (sourceName) => {
   return generateSourceLogo(sourceName);
 };
 
+const PROD_URL = 'https://tejbharatnetwork-full-site-copy-1.onrender.com';
+
 const ArticleCard = ({ article }) => {
   const { currentUser, toggleBookmark, isBookmarked } = useAuth();
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [showLoginWarning, setShowLoginWarning] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [showToast, setShowToast] = useState(false);
+  const shareButtonRef = useRef(null);
+
+  // Portal root
+  const portalRoot = typeof window !== 'undefined' ? document.body : null;
+
+  // Position the menu above the button
+  const openShareMenu = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (shareButtonRef.current) {
+      const rect = shareButtonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.top + window.scrollY - 8, // 8px gap above button
+        left: rect.left + window.scrollX + rect.width / 2,
+      });
+    }
+    setShowShareMenu(true);
+  };
+
+  // Close on outside click or scroll/resize
+  useEffect(() => {
+    if (!showShareMenu) return;
+    let timeoutId = setTimeout(() => {
+      const handleClick = (event) => {
+        if (
+          shareButtonRef.current &&
+          !shareButtonRef.current.contains(event.target)
+        ) {
+          setShowShareMenu(false);
+        }
+      };
+      const handleScrollOrResize = () => {
+        setShowShareMenu(false);
+      };
+      document.addEventListener('mousedown', handleClick);
+      window.addEventListener('scroll', handleScrollOrResize, true);
+      window.addEventListener('resize', handleScrollOrResize);
+      // Cleanup
+      return () => {
+        document.removeEventListener('mousedown', handleClick);
+        window.removeEventListener('scroll', handleScrollOrResize, true);
+        window.removeEventListener('resize', handleScrollOrResize);
+      };
+    }, 0);
+    // Cleanup for timeout
+    return () => clearTimeout(timeoutId);
+  }, [showShareMenu]);
 
   const handleBookmarkClick = useCallback(async (e) => {
     e.preventDefault();
@@ -109,10 +162,32 @@ const ArticleCard = ({ article }) => {
     }
   }, [currentUser, toggleBookmark, article.id, isBookmarkLoading]);
 
-  const handleShare = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    // onShare(article); // This prop is removed, so this line is removed.
+  const handleShare = (platform) => {
+    const url = `${PROD_URL}/article-detail-page?id=${article?.id}&title=${encodeURIComponent(article?.title || '')}&category=${article?.category || ''}`;
+    const text = `Check out this article: ${article?.title}`;
+    switch (platform) {
+      case 'Twitter':
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text + ' ' + url)}`,'_blank');
+        break;
+      case 'Facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,'_blank');
+        break;
+      case 'LinkedIn':
+        window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(article?.title || '')}`,'_blank');
+        break;
+      case 'WhatsApp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`,'_blank');
+        break;
+      case 'Copy Link':
+        navigator.clipboard.writeText(url).then(() => {
+          setShowToast(true);
+          setTimeout(() => setShowToast(false), 2000);
+        });
+        break;
+      default:
+        break;
+    }
+    setShowShareMenu(false);
   };
 
   const getTimeAgo = (date) => {
@@ -133,6 +208,12 @@ const ArticleCard = ({ article }) => {
 
   return (
     <article className="news-card news-card-hover group">
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[99999] bg-black text-white px-4 py-2 rounded shadow-lg text-sm animate-fade-in-out">
+          Link copied to clipboard!
+        </div>
+      )}
       <Link
         to={`/article-detail-page?id=${article.id}&title=${encodeURIComponent(article.title)}&category=${article.category}`}
         className="block"
@@ -168,12 +249,46 @@ const ArticleCard = ({ article }) => {
               )}
             </Button>
             <Button
+              ref={shareButtonRef}
               variant="ghost"
-              onClick={handleShare}
+              onClick={e => { e.preventDefault(); e.stopPropagation(); openShareMenu(e); }}
               className="w-8 h-8 bg-surface/90 dark:bg-neutral-800/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-surface dark:hover:bg-neutral-700 transition-colors duration-200 touch-target border border-border dark:border-border focus:ring-2 focus:ring-accent dark:focus:ring-accent-dark"
               iconName="Share2"
               iconSize={14}
             />
+            {showShareMenu && portalRoot && createPortal(
+              <div
+                style={{
+                  position: 'absolute',
+                  top: menuPosition.top - 8, // 8px gap above button
+                  left: menuPosition.left,
+                  transform: 'translate(-50%, -100%)',
+                  zIndex: 9999,
+                }}
+                className="w-40 bg-background border border-border rounded-lg shadow-lg z-dropdown"
+                onMouseDown={e => e.stopPropagation()}
+              >
+                <div className="flex flex-col space-y-1 p-2">
+                  {[
+                    { name: 'Twitter', icon: 'Twitter', color: 'text-blue-500' },
+                    { name: 'Facebook', icon: 'Facebook', color: 'text-blue-600' },
+                    { name: 'LinkedIn', icon: 'Linkedin', color: 'text-blue-700' },
+                    { name: 'WhatsApp', icon: 'MessageCircle', color: 'text-green-500' },
+                    { name: 'Copy Link', icon: 'Link', color: 'text-text-secondary' }
+                  ].map(option => (
+                    <button
+                      key={option.name}
+                      onClick={e => { e.preventDefault(); e.stopPropagation(); handleShare(option.name); }}
+                      className="flex items-center space-x-2 px-3 py-2 text-sm rounded-md hover:bg-surface transition-colors duration-200"
+                    >
+                      <Icon name={option.icon} size={16} className={option.color} />
+                      <span className="text-text-primary">{option.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>,
+              portalRoot
+            )}
           </div>
         </div>
 
