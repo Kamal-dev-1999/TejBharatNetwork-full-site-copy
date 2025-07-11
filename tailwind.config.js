@@ -172,25 +172,25 @@ module.exports = {
           '--tw-border-opacity': '1',
         },
         '.dark .bg-background': {
-          'background-color': '#0F172A', // slate-900
+          'background-color': '#18181B', // zinc-900
         },
         '.dark .bg-surface': {
-          'background-color': '#1E293B', // slate-800
+          'background-color': '#27272A', // zinc-800
         },
         '.dark .text-primary': {
-          'color': '#F8FAFC', // slate-50
+          'color': '#F4F4F5', // zinc-100
         },
         '.dark .text-text-primary': {
-          'color': '#F8FAFC', // slate-50
+          'color': '#F4F4F5', // zinc-100
         },
         '.dark .text-text-secondary': {
-          'color': '#94A3B8', // slate-400
+          'color': '#A1A1AA', // zinc-400
         },
         '.dark .border-border': {
-          'border-color': '#334155', // slate-700
+          'border-color': '#3F3F46', // zinc-700
         },
         '.dark .border-border-muted': {
-          'border-color': '#1E293B', // slate-800
+          'border-color': '#27272A', // zinc-800
         },
       };
       addUtilities(darkModeUtilities);

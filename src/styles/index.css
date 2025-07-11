@@ -14,8 +14,8 @@ body {
 
 /* Dark mode styles */
 .dark body {
-  background-color: #0F172A;
-  color: #F8FAFC;
+  background-color: #18181B;
+  color: #F4F4F5;
 }
 
 /* 🔄 Reset */
@@ -37,7 +37,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 }
 
 .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, .dark .font-heading {
-  color: #F8FAFC;
+  color: #F4F4F5;
 }
 
 @keyframes neon-pulse-red {
