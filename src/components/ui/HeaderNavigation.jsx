@@ -131,7 +131,7 @@ const HeaderNavigation = () => {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-xl font-heading font-bold text-primary transition-colors duration-200">
+              <span className="text-xl font-heading font-bold text-primary transition-colors duration-200 hidden sm:inline">
                 तेज भारत NETWORK
               </span>
             </Link>
@@ -273,7 +273,7 @@ const HeaderNavigation = () => {
               aria-label="Toggle mobile menu"
               aria-expanded={isMobileMenuOpen}
             >
-              <Icon name={isMobileMenuOpen ? "X" : "Menu"} size={20} />
+              <Icon name={isMobileMenuOpen ? "X" : "Menu"} size={28} />
             </Button>
           </div>
         </div>
